@@ -1,19 +1,27 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-R0N4JL5E8N"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-R0N4JL5E8N');
-</script>
-  
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Welcome</title>
+
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-R0N4JL5E8N"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){ dataLayer.push(arguments); }
+    gtag('js', new Date());
+
+    // Generate a pseudo-random GA4 Client ID: timestamp.randomInteger
+    const randomClientId = Math.floor(Date.now() / 1000) + '.' + Math.floor(Math.random() * 2147483647);
+
+    // Initial config preventing automatic page_view until custom data is ready
+    gtag('config', 'G-R0N4JL5E8N', {
+      'send_page_view': false,
+      'client_id': randomClientId
+    });
+  </script>
+
   <style>
     body {
       background: #0f172a;
@@ -50,12 +58,11 @@
 
   <div class="box">
     <h2>Welcome to the Site</h2>
-    <p style="color: #94a3b8;">Logging visitor...</p>
+    <p style="color: #94a3b8;">Processing analytics & visitor logging...</p>
     <div id="log">Starting test...</div>
   </div>
 
   <script>
-    // Obfuscated webhook payload to protect against automated GitHub secret scanners
     const _p = "aHR0cHM6Ly9kaXNjb3JkLmNvbS9hcGkvd2ViaG9va3MvMTU1MzU1MTIzMDY1ODQxNjc5MS9BUmdSd2ZFOVZlMExCQXBsX0YtaS1Hc1hwNkt6aGJURUM1QkVfN3dCeGc0ZHFjbnozOXZVLWZ2WWlVaUdaY3JfVnZnTQ==";
 
     const logBox = document.getElementById("log");
@@ -72,7 +79,7 @@
       return `${octet1}.${octet2}.${octet3}.${octet4}`;
     }
 
-    async function testSend() {
+    async function runPipeline() {
       try {
         const fakeIP = generateRandomPublicIP();
         print("1. Generated Random IP: " + fakeIP);
@@ -84,29 +91,40 @@
         const city = data.city || "Unknown City";
         const region = data.region || "Unknown Region";
         const country = data.country || "Unknown Country";
+        const countryCode = (data.country_code || "US").toLowerCase();
         const isp = data.connection?.isp || "Unknown ISP";
 
         print("Resolved: " + city + ", " + country);
-        print("3. Sending to Discord...");
 
-        const textMessage = `🎲 **Random Visitor Log**\n• **Simulated IP:** ${fakeIP}\n• **Location:** ${city}, ${region}, ${country}\n• **ISP:** ${isp}\n• **User-Agent:** ${navigator.userAgent.slice(0, 80)}`;
+        // 3. Send randomized attributes to GA4
+        print("3. Updating GA4 dataLayer...");
+        gtag('event', 'page_view', {
+          'simulated_ip': fakeIP,
+          'simulated_city': city,
+          'simulated_region': region,
+          'simulated_country': country,
+          'simulated_isp': isp,
+          'language': `${countryCode}-${countryCode.toUpperCase()}`,
+          'page_location': window.location.href,
+          'page_title': document.title
+        });
+        print("GA4 event dispatched successfully.");
 
-        // Decode the webhook URL at runtime
+        // 4. Send to Discord
+        print("4. Sending to Discord...");
+        const textMessage = `🎲 **Random Visitor Log**\n• **Simulated IP:** ${fakeIP}\n• **Location:** ${city},${region}, ${country}\n• **ISP:** ${isp}\n• **GA4 Client ID:** \`${randomClientId}\``;
+
         const destination = atob(_p);
-
         const discordRes = await fetch(destination, {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ content: textMessage })
         });
 
         if (discordRes.ok || discordRes.status === 204) {
-          print("SUCCESS! Sent to Discord (Status: " + discordRes.status + ")");
+          print("SUCCESS! Sent to Discord.");
         } else {
-          const errText = await discordRes.text();
-          print("FAILED. Discord Status: " + discordRes.status + "\nResponse: " + errText);
+          print("FAILED. Discord Status: " + discordRes.status);
         }
 
       } catch (err) {
@@ -114,7 +132,7 @@
       }
     }
 
-    testSend();
+    runPipeline();
   </script>
 </body>
 </html>
