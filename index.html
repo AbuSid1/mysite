@@ -12,13 +12,31 @@
     function gtag(){ dataLayer.push(arguments); }
     gtag('js', new Date());
 
-    // Generate a pseudo-random GA4 Client ID: timestamp.randomInteger
-    const randomClientId = Math.floor(Date.now() / 1000) + '.' + Math.floor(Math.random() * 2147483647);
+    // Generate unique random Client ID (Format: <timestamp>.<randomInt>)
+    const randomClientId = `${Math.floor(Date.now() / 1000)}.${Math.floor(Math.random() * 2147483647)}`;
 
-    // Initial config preventing automatic page_view until custom data is ready
+    // Generate random Session ID
+    const randomSessionId = `${Math.floor(Date.now() / 1000)}`;
+
+    // Pool of organic search engines and query structures
+    const organicEngines = [
+      { source: "google", referrer: "https://www.google.com/" },
+      { source: "bing", referrer: "https://www.bing.com/" },
+      { source: "duckduckgo", referrer: "https://duckduckgo.com/" },
+      { source: "yahoo", referrer: "https://search.yahoo.com/" }
+    ];
+
+    const selectedEngine = organicEngines[Math.floor(Math.random() * organicEngines.length)];
+
+    // Initialize GA4 with simulated attribution variables
     gtag('config', 'G-R0N4JL5E8N', {
       'send_page_view': false,
-      'client_id': randomClientId
+      'client_id': randomClientId,
+      'session_id': randomSessionId,
+      'page_referrer': selectedEngine.referrer,
+      'campaign_source': selectedEngine.source,
+      'campaign_medium': 'organic',
+      'ignore_referrer': false
     });
   </script>
 
@@ -37,7 +55,7 @@
       text-align: center;
     }
     .box {
-      max-width: 450px;
+      max-width: 480px;
       width: 100%;
     }
     #log {
@@ -58,8 +76,8 @@
 
   <div class="box">
     <h2>Welcome to the Site</h2>
-    <p style="color: #94a3b8;">Processing analytics & visitor logging...</p>
-    <div id="log">Starting test...</div>
+    <p style="color: #94a3b8;">Processing visit attribution...</p>
+    <div id="log">Starting tracking pipeline...</div>
   </div>
 
   <script>
@@ -82,37 +100,37 @@
     async function runPipeline() {
       try {
         const fakeIP = generateRandomPublicIP();
-        print("1. Generated Random IP: " + fakeIP);
+        print(`1. Generated Test IP: ${fakeIP}`);
 
-        print("2. Fetching metadata for " + fakeIP + "...");
+        print(`2. Fetching geo-metadata...`);
         const res = await fetch(`https://ipwho.is/${fakeIP}`);
         const data = await res.json();
 
         const city = data.city || "Unknown City";
         const region = data.region || "Unknown Region";
         const country = data.country || "Unknown Country";
-        const countryCode = (data.country_code || "US").toLowerCase();
         const isp = data.connection?.isp || "Unknown ISP";
 
-        print("Resolved: " + city + ", " + country);
+        print(`Attribution source: ${selectedEngine.source} (${selectedEngine.referrer})`);
 
-        // 3. Send randomized attributes to GA4
-        print("3. Updating GA4 dataLayer...");
+        // 3. Dispatch GA4 Page View with simulated organic attribution
+        print("3. Sending page_view to GA4...");
         gtag('event', 'page_view', {
+          'page_location': window.location.href,
+          'page_referrer': selectedEngine.referrer,
+          'campaign_source': selectedEngine.source,
+          'campaign_medium': 'organic',
+          'session_engaged': 1,
+          'engagement_time_msec': 12000, // 12 seconds to satisfy engagement threshold
           'simulated_ip': fakeIP,
           'simulated_city': city,
-          'simulated_region': region,
-          'simulated_country': country,
-          'simulated_isp': isp,
-          'language': `${countryCode}-${countryCode.toUpperCase()}`,
-          'page_location': window.location.href,
-          'page_title': document.title
+          'simulated_country': country
         });
-        print("GA4 event dispatched successfully.");
+        print("GA4 payload transmitted.");
 
-        // 4. Send to Discord
-        print("4. Sending to Discord...");
-        const textMessage = `🎲 **Random Visitor Log**\n• **Simulated IP:** ${fakeIP}\n• **Location:** ${city},${region}, ${country}\n• **ISP:** ${isp}\n• **GA4 Client ID:** \`${randomClientId}\``;
+        // 4. Send report to Discord
+        print("4. Forwarding to Discord...");
+        const textMessage = `🎲 **Visitor Log**\n• **Attribution:** Organic Search (${selectedEngine.source})\n• **Simulated IP:** ${fakeIP}\n• **Location:** ${city},${region}, ${country}\n• **ISP:** ${isp}\n• **GA4 Client ID:** \`${randomClientId}\``;
 
         const destination = atob(_p);
         const discordRes = await fetch(destination, {
@@ -122,13 +140,13 @@
         });
 
         if (discordRes.ok || discordRes.status === 204) {
-          print("SUCCESS! Sent to Discord.");
+          print("SUCCESS! Pipeline finished.");
         } else {
-          print("FAILED. Discord Status: " + discordRes.status);
+          print(`Discord notification failed with status: ${discordRes.status}`);
         }
 
       } catch (err) {
-        print("ERROR: " + err.message);
+        print("Pipeline Error: " + err.message);
       }
     }
 
