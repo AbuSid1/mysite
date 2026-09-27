@@ -12,31 +12,11 @@
     function gtag(){ dataLayer.push(arguments); }
     gtag('js', new Date());
 
-    // Generate unique random Client ID (Format: <timestamp>.<randomInt>)
     const randomClientId = `${Math.floor(Date.now() / 1000)}.${Math.floor(Math.random() * 2147483647)}`;
 
-    // Generate random Session ID
-    const randomSessionId = `${Math.floor(Date.now() / 1000)}`;
-
-    // Pool of organic search engines and query structures
-    const organicEngines = [
-      { source: "google", referrer: "https://www.google.com/" },
-      { source: "bing", referrer: "https://www.bing.com/" },
-      { source: "duckduckgo", referrer: "https://duckduckgo.com/" },
-      { source: "yahoo", referrer: "https://search.yahoo.com/" }
-    ];
-
-    const selectedEngine = organicEngines[Math.floor(Math.random() * organicEngines.length)];
-
-    // Initialize GA4 with simulated attribution variables
     gtag('config', 'G-R0N4JL5E8N', {
       'send_page_view': false,
-      'client_id': randomClientId,
-      'session_id': randomSessionId,
-      'page_referrer': selectedEngine.referrer,
-      'campaign_source': selectedEngine.source,
-      'campaign_medium': 'organic',
-      'ignore_referrer': false
+      'client_id': randomClientId
     });
   </script>
 
@@ -44,27 +24,54 @@
     body {
       background: #0f172a;
       color: #f8fafc;
-      font-family: system-ui, sans-serif;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       min-height: 100vh;
       margin: 0;
-      padding: 1rem;
+      padding: 1.5rem;
       text-align: center;
     }
+
     .box {
       max-width: 480px;
       width: 100%;
     }
+
+    /* Timer Display Styling */
+    .timer-container {
+      margin: 1.5rem 0;
+      padding: 1.25rem;
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .timer-label {
+      font-size: 0.85rem;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.4rem;
+    }
+
+    .timer-display {
+      font-size: 3rem;
+      font-weight: 700;
+      font-family: monospace;
+      color: #38bdf8;
+    }
+
     #log {
       margin-top: 1.5rem;
       background: #1e293b;
       padding: 1rem;
       border-radius: 8px;
       font-family: monospace;
-      font-size: 0.85rem;
+      font-size: 0.82rem;
       color: #38bdf8;
       text-align: left;
       white-space: pre-wrap;
@@ -76,16 +83,82 @@
 
   <div class="box">
     <h2>Welcome to the Site</h2>
-    <p style="color: #94a3b8;">Processing visit attribution...</p>
-    <div id="log">Starting tracking pipeline...</div>
+    <p style="color: #94a3b8;">Processing session and analytics...</p>
+
+    <!-- 1s to 60s Looping Timer -->
+    <div class="timer-container">
+      <div class="timer-label">Session Elapsed Time</div>
+      <div class="timer-display" id="timer">1s</div>
+    </div>
+
+    <div id="log">Starting test...</div>
   </div>
 
   <script>
+    // 1. Looping Timer (Starts at 1, goes up to 60, resets to 1)
+    let seconds = 1;
+    const timerElement = document.getElementById("timer");
+
+    setInterval(() => {
+      seconds++;
+      if (seconds > 60) {
+        seconds = 1;
+      }
+      timerElement.textContent = `${seconds}s`;
+    }, 1000);
+
+    // 2. Logging and Obfuscated Discord Webhook
     const _p = "aHR0cHM6Ly9kaXNjb3JkLmNvbS9hcGkvd2ViaG9va3MvMTU1MzU1MTIzMDY1ODQxNjc5MS9BUmdSd2ZFOVZlMExCQXBsX0YtaS1Hc1hwNkt6aGJURUM1QkVfN3dCeGc0ZHFjbnozOXZVLWZ2WWlVaUdaY3JfVnZnTQ==";
 
     const logBox = document.getElementById("log");
     function print(msg) {
       logBox.textContent += "\n" + msg;
+    }
+
+    const DEVICE_PROFILES = [
+      {
+        deviceName: "Samsung Galaxy S24 Ultra",
+        category: "mobile",
+        platform: "Android 14",
+        screen: "1440x3120",
+        userAgent: "Mozilla/5.0 (Linux; Android 14; SM-S928B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.6261.119 Mobile Safari/537.36"
+      },
+      {
+        deviceName: "Apple iPhone 15 Pro",
+        category: "mobile",
+        platform: "iOS 17.4",
+        screen: "1179x2556",
+        userAgent: "Mozilla/5.0 (iPhone; CPU iPhone OS 17_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Mobile/15E148 Safari/604.1"
+      },
+      {
+        deviceName: "Google Pixel 8 Pro",
+        category: "mobile",
+        platform: "Android 14",
+        screen: "1344x2992",
+        userAgent: "Mozilla/5.0 (Linux; Android 14; Pixel 8 Pro) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.6312.40 Mobile Safari/537.36"
+      },
+      {
+        deviceName: "Apple MacBook Pro 16",
+        category: "desktop",
+        platform: "macOS 14.3",
+        screen: "1728x1117",
+        userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
+      },
+      {
+        deviceName: "Dell XPS 15 (Windows 11)",
+        category: "desktop",
+        platform: "Windows 11",
+        screen: "1920x1080",
+        userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36"
+      }
+    ];
+
+    function generateSyntheticDeviceId() {
+      return 'dev-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        const r = Math.random() * 16 | 0;
+        const v = c === 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+      });
     }
 
     function generateRandomPublicIP() {
@@ -99,38 +172,43 @@
 
     async function runPipeline() {
       try {
+        const profile = DEVICE_PROFILES[Math.floor(Math.random() * DEVICE_PROFILES.length)];
+        const syntheticDeviceId = generateSyntheticDeviceId();
         const fakeIP = generateRandomPublicIP();
-        print(`1. Generated Test IP: ${fakeIP}`);
 
-        print(`2. Fetching geo-metadata...`);
+        print(`1. Device Profile: ${profile.deviceName}`);
+        print(`   ID: ${syntheticDeviceId}`);
+
+        print(`2. Fetching geo-metadata for IP ${fakeIP}...`);
         const res = await fetch(`https://ipwho.is/${fakeIP}`);
         const data = await res.json();
 
         const city = data.city || "Unknown City";
         const region = data.region || "Unknown Region";
         const country = data.country || "Unknown Country";
-        const isp = data.connection?.isp || "Unknown ISP";
 
-        print(`Attribution source: ${selectedEngine.source} (${selectedEngine.referrer})`);
-
-        // 3. Dispatch GA4 Page View with simulated organic attribution
-        print("3. Sending page_view to GA4...");
+        // Dispatch custom attributes to GA4
+        print("3. Sending custom device metrics to GA4...");
         gtag('event', 'page_view', {
-          'page_location': window.location.href,
-          'page_referrer': selectedEngine.referrer,
-          'campaign_source': selectedEngine.source,
-          'campaign_medium': 'organic',
-          'session_engaged': 1,
-          'engagement_time_msec': 12000, // 12 seconds to satisfy engagement threshold
+          'simulated_device_id': syntheticDeviceId,
+          'simulated_device_name': profile.deviceName,
+          'simulated_device_category': profile.category,
+          'simulated_screen_resolution': profile.screen,
+          'simulated_user_agent': profile.userAgent,
           'simulated_ip': fakeIP,
           'simulated_city': city,
           'simulated_country': country
         });
-        print("GA4 payload transmitted.");
 
-        // 4. Send report to Discord
-        print("4. Forwarding to Discord...");
-        const textMessage = `🎲 **Visitor Log**\n• **Attribution:** Organic Search (${selectedEngine.source})\n• **Simulated IP:** ${fakeIP}\n• **Location:** ${city},${region}, ${country}\n• **ISP:** ${isp}\n• **GA4 Client ID:** \`${randomClientId}\``;
+        // Forward to Discord
+        print("4. Sending summary to Discord...");
+        const textMessage = `📱 **Simulated Device & Visitor Log**\n` +
+          `• **Device Name:** ${profile.deviceName}\n` +
+          `• **Simulated Device ID:** \`${syntheticDeviceId}\`\n` +
+          `• **OS / Platform:** ${profile.platform}\n` +
+          `• **Screen Size:** ${profile.screen}\n` +
+          `• **Simulated IP:** ${fakeIP} (${city},${country})\n` +
+          `• **Synthetic UA:** \`${profile.userAgent.slice(0, 75)}...\``;
 
         const destination = atob(_p);
         const discordRes = await fetch(destination, {
@@ -140,13 +218,13 @@
         });
 
         if (discordRes.ok || discordRes.status === 204) {
-          print("SUCCESS! Pipeline finished.");
+          print("SUCCESS! Completed logging.");
         } else {
-          print(`Discord notification failed with status: ${discordRes.status}`);
+          print(`Discord error status: ${discordRes.status}`);
         }
 
       } catch (err) {
-        print("Pipeline Error: " + err.message);
+        print("Execution Error: " + err.message);
       }
     }
 
