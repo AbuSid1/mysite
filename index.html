@@ -1,314 +1,1680 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Welcome</title>
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>GA4 Synthetic Traffic Testing</title>
+
+
+  <!-- =========================================================
+       STANDARD GA4 WEB TAG
+       ========================================================= -->
+
+  <script
+    async
+    src="https://www.googletagmanager.com/gtag/js?id=G-R0N4JL5E8N">
+  </script>
+
+  <script>
+
+    window.dataLayer =
+      window.dataLayer || [];
+
+    function gtag() {
+      dataLayer.push(arguments);
+    }
+
+    gtag("js", new Date());
+
+    gtag("config", "G-R0N4JL5E8N", {
+      send_page_view: true,
+      debug_mode: true
+    });
+
+  </script>
+
+
+  <!-- =========================================================
+       STYLE
+       ========================================================= -->
 
   <style>
+
     * {
       box-sizing: border-box;
     }
 
     body {
-      background: #0f172a;
-      color: #f8fafc;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: flex-start;
-      min-height: 100vh;
+
       margin: 0;
+
+      min-height: 100vh;
+
       padding: 2rem 1rem;
+
+      background: #0f172a;
+
+      color: #f8fafc;
+
+      font-family:
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Roboto,
+        sans-serif;
+
       text-align: center;
+
     }
 
     .box {
-      max-width: 520px;
+
       width: 100%;
+
+      max-width: 650px;
+
+      margin: auto;
+
     }
 
-    .timer-container {
-      margin: 1.5rem 0;
-      padding: 1.25rem;
-      background: #1e293b;
-      border: 1px solid #334155;
-      border-radius: 12px;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    h2 {
+
+      margin-bottom: 5px;
+
     }
 
-    .timer-label {
-      font-size: 0.85rem;
+    .subtitle {
+
       color: #94a3b8;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      margin-bottom: 0.4rem;
+
+      margin-top: 0;
+
     }
 
-    .timer-display {
-      font-size: 2.75rem;
-      font-weight: 700;
-      font-family: monospace;
-      color: #38bdf8;
-    }
+    .card {
 
-    .interaction-panel {
-      margin: 1.5rem 0;
-      padding: 1rem;
+      margin-top: 1.2rem;
+
+      padding: 1.2rem;
+
       background: #1e293b;
+
       border: 1px solid #334155;
+
       border-radius: 12px;
+
+      text-align: left;
+
     }
 
-    .selected-text {
-      font-size: 1.15rem;
-      color: #f8fafc;
-      font-weight: 600;
+    .label {
+
+      color: #94a3b8;
+
+      font-size: .8rem;
+
+      text-transform: uppercase;
+
+      letter-spacing: .05em;
+
     }
 
-    .selected-text span {
+    .value {
+
+      margin-top: 4px;
+
       color: #38bdf8;
+
       font-family: monospace;
-      font-size: 1.35rem;
+
+      word-break: break-all;
+
+    }
+
+    .timer {
+
+      text-align: center;
+
+      font-family: monospace;
+
+      font-size: 3rem;
+
+      font-weight: 700;
+
+      color: #38bdf8;
+
+      margin: .8rem 0;
+
     }
 
     .button-grid {
+
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(42px, 1fr));
-      gap: 0.45rem;
-      margin-top: 1rem;
-      max-height: 240px;
+
+      grid-template-columns:
+        repeat(auto-fill, minmax(45px, 1fr));
+
+      gap: 7px;
+
+      max-height: 260px;
+
       overflow-y: auto;
-      padding: 0.5rem;
+
+      padding: 10px;
+
       background: #0b1120;
+
       border-radius: 8px;
-      border: 1px solid #1e293b;
+
     }
 
     .num-btn {
+
       background: #1e293b;
-      color: #f8fafc;
+
+      color: white;
+
       border: 1px solid #334155;
+
       border-radius: 6px;
-      padding: 0.55rem 0;
-      font-size: 0.9rem;
-      font-weight: 600;
+
+      padding: .55rem 0;
+
       cursor: pointer;
-      transition: all 0.15s ease-in-out;
+
+      font-weight: 600;
+
     }
 
     .num-btn:hover {
+
       background: #38bdf8;
+
       color: #0f172a;
-      border-color: #38bdf8;
-      transform: translateY(-1px);
+
     }
 
-    .num-btn:active {
-      transform: scale(0.95);
+    .controls {
+
+      display: flex;
+
+      gap: 8px;
+
+      flex-wrap: wrap;
+
+    }
+
+    .control {
+
+      background: #1e293b;
+
+      color: white;
+
+      border: 1px solid #334155;
+
+      border-radius: 7px;
+
+      padding: 10px 14px;
+
+      cursor: pointer;
+
+    }
+
+    .control:hover {
+
+      border-color: #38bdf8;
+
     }
 
     #log {
-      margin-top: 1.5rem;
-      background: #1e293b;
-      padding: 1rem;
+
+      height: 260px;
+
+      overflow-y: auto;
+
+      background: #020617;
+
+      padding: 12px;
+
       border-radius: 8px;
+
       font-family: monospace;
-      font-size: 0.82rem;
-      color: #38bdf8;
-      text-align: left;
+
+      font-size: 12px;
+
+      line-height: 1.5;
+
       white-space: pre-wrap;
-      word-break: break-all;
+
+      word-break: break-word;
+
+      color: #7dd3fc;
+
     }
+
+    .success {
+
+      color: #22c55e;
+
+    }
+
+    .warning {
+
+      color: #f59e0b;
+
+    }
+
+    .error {
+
+      color: #ef4444;
+
+    }
+
   </style>
+
 </head>
+
+
 <body>
 
-  <div class="box">
-    <h2>Welcome to the Site</h2>
-    <p style="color: #94a3b8;">Processing session and analytics...</p>
 
-    <!-- 1s to 60s Looping Timer -->
-    <div class="timer-container">
-      <div class="timer-label">Session Elapsed Time</div>
-      <div class="timer-display" id="timer">1s</div>
+<div class="box">
+
+  <h2>GA4 Synthetic Traffic Test</h2>
+
+  <p class="subtitle">
+    Processing session and analytics...
+  </p>
+
+
+  <!-- =======================================================
+       TIMER
+       ======================================================= -->
+
+  <div class="card">
+
+    <div class="label">
+      Session Elapsed Time
     </div>
 
-    <!-- 1 to 50 Interactive Numbers Panel -->
-    <div class="interaction-panel">
-      <div class="selected-text" id="statusText">Click any number: <span>None</span></div>
-      <div class="button-grid" id="buttonGrid"></div>
+    <div
+      id="timer"
+      class="timer">
+      1s
     </div>
 
-    <div id="log">Initializing anonymized session...</div>
   </div>
 
-  <script>
-    // 1. Synthetic Client & Session Identifiers
-    const randomClientId = `${Math.floor(Date.now() / 1000)}.${Math.floor(Math.random() * 2147483647)}`;
-    const randomSessionId = `${Math.floor(Date.now() / 1000)}`;
 
-    // 2. Generate 1 to 50 Interactive Buttons
-    const grid = document.getElementById("buttonGrid");
-    const statusText = document.getElementById("statusText");
+  <!-- =======================================================
+       SYNTHETIC PROFILE
+       ======================================================= -->
 
-    for (let i = 1; i <= 50; i++) {
-      const btn = document.createElement("button");
-      btn.className = "num-btn";
-      btn.textContent = i;
-      btn.onclick = () => {
-        statusText.innerHTML = `You selected: <span>Button #${i}</span>`;
-      };
-      grid.appendChild(btn);
-    }
+  <div class="card">
 
-    // 3. Looping Timer (Starts at 1, cycles to 60, resets to 1)
-    let seconds = 1;
-    const timerElement = document.getElementById("timer");
-    setInterval(() => {
-      seconds++;
-      if (seconds > 60) {
-        seconds = 1;
-      }
-      timerElement.textContent = `${seconds}s`;
-    }, 1000);
+    <div class="label">
+      Assigned Device
+    </div>
 
-    // 4. Obfuscated Discord Webhook Token
-    const _p = "aHR0cHM6Ly9kaXNjb3JkLmNvbS9hcGkvd2ViaG9va3MvMTU1MzU1MTIzMDY1ODQxNjc5MS9BUmdSd2ZFOVZlMExCQXBsX0YtaS1Hc1hwNkt6aGJURUM1QkVfN3dCeGc0ZHFjbnozOXZVLWZ2WWlVaUdaY3JfVnZnTQ==";
+    <div
+      id="device"
+      class="value">
+      Generating...
+    </div>
 
-    const logBox = document.getElementById("log");
-    function print(msg) {
-      logBox.textContent += "\n" + msg;
-    }
 
-    // 5. Hardware & Device Replacement Pool (Discards visitor's real screen & user agent)
-    const RANDOM_DEVICE_PROFILES = [
-      {
-        deviceName: "Samsung Galaxy S24 Ultra",
-        os: "Android 14",
-        screen: "1440x3120",
-        ua: "Mozilla/5.0 (Linux; Android 14; SM-S928B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Mobile Safari/537.36"
-      },
-      {
-        deviceName: "Apple iPhone 15 Pro",
-        os: "iOS 17.4",
-        screen: "1179x2556",
-        ua: "Mozilla/5.0 (iPhone; CPU iPhone OS 17_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Mobile/15E148 Safari/604.1"
-      },
-      {
-        deviceName: "Google Pixel 8 Pro",
-        os: "Android 14",
-        screen: "1344x2992",
-        ua: "Mozilla/5.0 (Linux; Android 14; Pixel 8 Pro) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36"
-      },
-      {
-        deviceName: "Apple MacBook Pro 16",
-        os: "macOS 14.3",
-        screen: "1728x1117",
-        ua: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36"
-      },
-      {
-        deviceName: "Dell XPS 15",
-        os: "Windows 11",
-        screen: "1920x1080",
-        ua: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
-      }
+    <br>
+
+
+    <div class="label">
+      Synthetic IP
+    </div>
+
+    <div
+      id="ip"
+      class="value">
+      Generating...
+    </div>
+
+
+    <br>
+
+
+    <div class="label">
+      Location
+    </div>
+
+    <div
+      id="location"
+      class="value">
+      Resolving...
+    </div>
+
+
+    <br>
+
+
+    <div class="label">
+      Attribution
+    </div>
+
+    <div
+      id="attribution"
+      class="value">
+      Selecting...
+    </div>
+
+  </div>
+
+
+  <!-- =======================================================
+       INTERACTION PANEL
+       ======================================================= -->
+
+  <div class="card">
+
+    <div
+      id="statusText"
+      style="font-weight:600;">
+      Click any number:
+      <span
+        id="selected"
+        style="color:#38bdf8;">
+        None
+      </span>
+    </div>
+
+
+    <div
+      id="buttonGrid"
+      class="button-grid">
+    </div>
+
+  </div>
+
+
+  <!-- =======================================================
+       MANUAL EVENTS
+       ======================================================= -->
+
+  <div class="card">
+
+    <div class="label">
+      GA4 Event Testing
+    </div>
+
+    <br>
+
+    <div class="controls">
+
+      <button
+        class="control"
+        id="testEvent">
+        Send Test Event
+      </button>
+
+      <button
+        class="control"
+        id="pingEvent">
+        Send Ping
+      </button>
+
+      <button
+        class="control"
+        id="refreshIds">
+        Refresh GA4 IDs
+      </button>
+
+    </div>
+
+  </div>
+
+
+  <!-- =======================================================
+       GA4 IDENTIFIERS
+       ======================================================= -->
+
+  <div class="card">
+
+    <div class="label">
+      GA4 Client ID
+    </div>
+
+    <div
+      id="clientId"
+      class="value">
+      Waiting...
+    </div>
+
+
+    <br>
+
+
+    <div class="label">
+      GA4 Session ID
+    </div>
+
+    <div
+      id="sessionId"
+      class="value">
+      Waiting...
+    </div>
+
+  </div>
+
+
+  <!-- =======================================================
+       LOG
+       ======================================================= -->
+
+  <div class="card">
+
+    <div class="label">
+      Execution Log
+    </div>
+
+    <br>
+
+    <div id="log">
+      Initializing...
+    </div>
+
+  </div>
+
+</div>
+
+
+<script>
+
+"use strict";
+
+
+/* ==========================================================
+   CONFIGURATION
+   ========================================================== */
+
+const MEASUREMENT_ID =
+  "G-R0N4JL5E8N";
+
+
+/* ==========================================================
+   RANDOM CLIENT / SESSION IDS
+   ========================================================== */
+
+const syntheticClientId =
+  `${Math.floor(Date.now() / 1000)}.${Math.floor(
+    Math.random() * 2147483647
+  )}`;
+
+const syntheticSessionId =
+  `${Math.floor(Date.now() / 1000)}`;
+
+
+/* ==========================================================
+   DOM
+   ========================================================== */
+
+const timer =
+  document.getElementById("timer");
+
+const logBox =
+  document.getElementById("log");
+
+const selected =
+  document.getElementById("selected");
+
+
+/* ==========================================================
+   LOGGER
+   ========================================================== */
+
+function print(message) {
+
+  const time =
+    new Date().toLocaleTimeString();
+
+  logBox.textContent +=
+    `\n[${time}] ${message}`;
+
+  logBox.scrollTop =
+    logBox.scrollHeight;
+
+  console.log(message);
+
+}
+
+
+/* ==========================================================
+   DEVICE PROFILES
+   ========================================================== */
+
+const RANDOM_DEVICE_PROFILES = [
+
+  {
+    deviceName:
+      "Samsung Galaxy S24 Ultra",
+
+    os:
+      "Android 14",
+
+    screen:
+      "1440x3120",
+
+    ua:
+      "Mozilla/5.0 (Linux; Android 14; SM-S928B) " +
+      "AppleWebKit/537.36 (KHTML, like Gecko) " +
+      "Chrome/123.0.0.0 Mobile Safari/537.36"
+  },
+
+
+  {
+    deviceName:
+      "Apple iPhone 15 Pro",
+
+    os:
+      "iOS 17.4",
+
+    screen:
+      "1179x2556",
+
+    ua:
+      "Mozilla/5.0 (iPhone; CPU iPhone OS 17_4 like Mac OS X) " +
+      "AppleWebKit/605.1.15 (KHTML, like Gecko) " +
+      "Version/17.4 Mobile/15E148 Safari/604.1"
+  },
+
+
+  {
+    deviceName:
+      "Google Pixel 8 Pro",
+
+    os:
+      "Android 14",
+
+    screen:
+      "1344x2992",
+
+    ua:
+      "Mozilla/5.0 (Linux; Android 14; Pixel 8 Pro) " +
+      "AppleWebKit/537.36 (KHTML, like Gecko) " +
+      "Chrome/122.0.0.0 Mobile Safari/537.36"
+  },
+
+
+  {
+    deviceName:
+      "Apple MacBook Pro 16",
+
+    os:
+      "macOS 14.3",
+
+    screen:
+      "1728x1117",
+
+    ua:
+      "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) " +
+      "AppleWebKit/537.36 (KHTML, like Gecko) " +
+      "Chrome/123.0.0.0 Safari/537.36"
+  },
+
+
+  {
+    deviceName:
+      "Dell XPS 15",
+
+    os:
+      "Windows 11",
+
+    screen:
+      "1920x1080",
+
+    ua:
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) " +
+      "AppleWebKit/537.36 (KHTML, like Gecko) " +
+      "Chrome/124.0.0.0 Safari/537.36"
+  }
+
+];
+
+
+/* ==========================================================
+   RANDOM PUBLIC IP GENERATOR
+   ========================================================== */
+
+function generateRandomPublicIP() {
+
+  const blocks = [
+
+    8,
+    13,
+    24,
+    34,
+    45,
+    52,
+    64,
+    82,
+    104,
+    142,
+    152,
+    157,
+    178,
+    185,
+    198,
+    203,
+    212
+
+  ];
+
+
+  const first =
+    blocks[
+      Math.floor(
+        Math.random() *
+        blocks.length
+      )
     ];
 
-    // Generates a random public IP from global carrier blocks
-    function generateRandomPublicIP() {
-      const publicBlocks = [8, 24, 45, 64, 82, 104, 142, 157, 185, 198, 203, 212, 13, 34, 52, 152, 178];
-      const octet1 = publicBlocks[Math.floor(Math.random() * publicBlocks.length)];
-      const octet2 = Math.floor(Math.random() * 254) + 1;
-      const octet3 = Math.floor(Math.random() * 254) + 1;
-      const octet4 = Math.floor(Math.random() * 254) + 1;
-      return `${octet1}.${octet2}.${octet3}.${octet4}`;
+
+  const second =
+    Math.floor(
+      Math.random() * 254
+    ) + 1;
+
+
+  const third =
+    Math.floor(
+      Math.random() * 254
+    ) + 1;
+
+
+  const fourth =
+    Math.floor(
+      Math.random() * 254
+    ) + 1;
+
+
+  return (
+    `${first}.${second}.${third}.${fourth}`
+  );
+
+}
+
+
+/* ==========================================================
+   RANDOM SEARCH ENGINE
+   ========================================================== */
+
+function chooseSearchEngine() {
+
+  const engines = [
+
+    {
+      source: "google",
+      ref: "https://www.google.com/"
+    },
+
+    {
+      source: "bing",
+      ref: "https://www.bing.com/"
+    },
+
+    {
+      source: "duckduckgo",
+      ref: "https://duckduckgo.com/"
     }
 
-    async function runPipeline() {
-      try {
-        const deviceProfile = RANDOM_DEVICE_PROFILES[Math.floor(Math.random() * RANDOM_DEVICE_PROFILES.length)];
-        const randomizedIP = generateRandomPublicIP();
+  ];
 
-        print(`1. Discarded visitor identity.`);
-        print(`   Assigned Device: ${deviceProfile.deviceName}`);
 
-        // Fetch location data exclusively for the randomized IP
-        print(`2. Resolving global IP: ${randomizedIP}...`);
-        const res = await fetch(`https://ipwho.is/${randomizedIP}`);
-        const data = await res.json();
+  return engines[
+    Math.floor(
+      Math.random() *
+      engines.length
+    )
+  ];
 
-        const ip = data.ip || randomizedIP;
-        const city = data.city || "Unknown City";
-        const region = data.region || "Unknown Region";
-        const country = data.country || "Unknown Country";
-        const countryCode = (data.country_code || "US").toLowerCase();
-        const isp = data.connection?.isp || data.org || "Unknown ISP";
+}
 
-        print(`Resolved: ${city}, ${country} (${isp})`);
 
-        // Organic Search Engine Allocation
-        const searchEngines = [
-          { source: "google", ref: "https://www.google.com/" },
-          { source: "bing", ref: "https://www.bing.com/" },
-          { source: "duckduckgo", ref: "https://duckduckgo.com/" }
-        ];
-        const chosenEngine = searchEngines[Math.floor(Math.random() * searchEngines.length)];
+/* ==========================================================
+   SELECT SYNTHETIC PROFILE
+   ========================================================== */
 
-        // Transmit purely synthetic payload to GA4 Gateway with IP & Locale override
-        print("3. Sending profile to GA4...");
-        const gaHitUrl = new URL("https://www.google-analytics.com/g/collect");
-        gaHitUrl.searchParams.set("v", "2");
-        gaHitUrl.searchParams.set("tid", "G-R0N4JL5E8N");
-        gaHitUrl.searchParams.set("cid", randomClientId);
-        gaHitUrl.searchParams.set("sid", randomSessionId);
-        gaHitUrl.searchParams.set("en", "page_view");
-        gaHitUrl.searchParams.set("dl", window.location.href);
-        gaHitUrl.searchParams.set("dr", chosenEngine.ref);
-        gaHitUrl.searchParams.set("cs", chosenEngine.source);
-        gaHitUrl.searchParams.set("cm", "organic");
-        
-        // These fields replace the network socket details in GA4
-        gaHitUrl.searchParams.set("uip", ip); 
-        gaHitUrl.searchParams.set("ua", deviceProfile.ua); 
-        gaHitUrl.searchParams.set("ul", `${countryCode}-${countryCode.toUpperCase()}`);
-        gaHitUrl.searchParams.set("sr", deviceProfile.screen);
-        gaHitUrl.searchParams.set("seg", "1");
-        gaHitUrl.searchParams.set("_et", "15000");
+const deviceProfile =
+  RANDOM_DEVICE_PROFILES[
+    Math.floor(
+      Math.random() *
+      RANDOM_DEVICE_PROFILES.length
+    )
+  ];
 
-        fetch(gaHitUrl.toString(), { mode: 'no-cors' });
-        print("GA4 payload transmitted.");
 
-        // Transmit clean visitor log to Discord using only synthetic data
-        print("4. Forwarding log to Discord...");
-        const textMessage = `🎲 **Visitor Log**\n` +
-          `• **Attribution:** Organic Search (${chosenEngine.source})\n` +
-          `• **IP:** ${ip}\n` +
-          `• **Location:** ${city},${region},${country}\n` +
-          `• **ISP:** ${isp}\n` +
-          `• **Device:** ${deviceProfile.deviceName}\n` +
-          `• **GA4 Client ID:** \`${randomClientId}\``;
+const randomizedIP =
+  generateRandomPublicIP();
 
-        const destination = atob(_p);
-        const discordRes = await fetch(destination, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ content: textMessage })
-        });
 
-        if (discordRes.ok || discordRes.status === 204) {
-          print("SUCCESS! Session registered.");
-        } else {
-          print(`Discord error status: ${discordRes.status}`);
-        }
+const chosenEngine =
+  chooseSearchEngine();
 
-      } catch (err) {
-        print("Execution Error: " + err.message);
+
+/* ==========================================================
+   DISPLAY PROFILE
+   ========================================================== */
+
+document.getElementById("device")
+  .textContent =
+    `${deviceProfile.deviceName} | ${deviceProfile.os}`;
+
+
+document.getElementById("ip")
+  .textContent =
+    randomizedIP;
+
+
+document.getElementById("attribution")
+  .textContent =
+    `Organic Search (${chosenEngine.source})`;
+
+
+/* ==========================================================
+   TIMER
+   ========================================================== */
+
+let seconds = 1;
+
+
+setInterval(
+  function() {
+
+    seconds++;
+
+    if (seconds > 60) {
+      seconds = 1;
+    }
+
+    timer.textContent =
+      `${seconds}s`;
+
+  },
+  1000
+);
+
+
+/* ==========================================================
+   CREATE 50 BUTTONS
+   ========================================================== */
+
+for (
+  let i = 1;
+  i <= 50;
+  i++
+) {
+
+  const button =
+    document.createElement("button");
+
+  button.className =
+    "num-btn";
+
+  button.type =
+    "button";
+
+  button.textContent =
+    i;
+
+
+  button.addEventListener(
+    "click",
+    function() {
+
+      selected.textContent =
+        `Button #${i}`;
+
+
+      /*
+        Normal browser-side GA4 event.
+      */
+
+      if (
+        typeof window.gtag ===
+        "function"
+      ) {
+
+        gtag(
+          "event",
+          "number_click",
+          {
+
+            button_number:
+              i,
+
+            synthetic_test:
+              true,
+
+            engagement_time_msec:
+              100
+
+          }
+        );
+
+        print(
+          `GA4 number_click sent: ${i}`
+        );
+
       }
+
+    }
+  );
+
+
+  document
+    .getElementById("buttonGrid")
+    .appendChild(button);
+
+}
+
+
+/* ==========================================================
+   IP GEO LOOKUP
+   ========================================================== */
+
+async function resolveSyntheticIP() {
+
+  print(
+    `Resolving synthetic IP: ${randomizedIP}`
+  );
+
+
+  try {
+
+    const response =
+      await fetch(
+        `https://ipwho.is/${encodeURIComponent(
+          randomizedIP
+        )}`
+      );
+
+
+    if (!response.ok) {
+
+      throw new Error(
+        `HTTP ${response.status}`
+      );
+
     }
 
-    runPipeline();
-  </script>
+
+    const data =
+      await response.json();
+
+
+    const ip =
+      data.ip ||
+      randomizedIP;
+
+
+    const city =
+      data.city ||
+      "Unknown City";
+
+
+    const region =
+      data.region ||
+      "Unknown Region";
+
+
+    const country =
+      data.country ||
+      "Unknown Country";
+
+
+    const countryCode =
+      (
+        data.country_code ||
+        "US"
+      ).toLowerCase();
+
+
+    const isp =
+      data.connection?.isp ||
+      data.org ||
+      "Unknown ISP";
+
+
+    document.getElementById("location")
+      .textContent =
+        `${city}, ${region}, ${country} (${isp})`;
+
+
+    print(
+      `Resolved: ${city}, ${country}`
+    );
+
+
+    return {
+
+      ip,
+
+      city,
+
+      region,
+
+      country,
+
+      countryCode,
+
+      isp
+
+    };
+
+
+  } catch (error) {
+
+    print(
+      `IP lookup failed: ${error.message}`
+    );
+
+
+    return {
+
+      ip:
+        randomizedIP,
+
+      city:
+        "Unknown City",
+
+      region:
+        "Unknown Region",
+
+      country:
+        "Unknown Country",
+
+      countryCode:
+        "us",
+
+      isp:
+        "Unknown ISP"
+
+    };
+
+  }
+
+}
+
+
+/* ==========================================================
+   GET REAL GA4 CLIENT ID
+   ========================================================== */
+
+function getGA4ClientId() {
+
+  if (
+    typeof window.gtag !==
+    "function"
+  ) {
+
+    return;
+
+  }
+
+
+  gtag(
+    "get",
+    MEASUREMENT_ID,
+    "client_id",
+    function(clientId) {
+
+      document.getElementById(
+        "clientId"
+      ).textContent =
+        clientId ||
+        "Unavailable";
+
+    }
+  );
+
+}
+
+
+/* ==========================================================
+   GET GA4 SESSION ID
+   ========================================================== */
+
+function getGA4SessionId() {
+
+  if (
+    typeof window.gtag !==
+    "function"
+  ) {
+
+    return;
+
+  }
+
+
+  gtag(
+    "get",
+    MEASUREMENT_ID,
+    "session_id",
+    function(sessionId) {
+
+      document.getElementById(
+        "sessionId"
+      ).textContent =
+        sessionId ||
+        "Unavailable";
+
+    }
+  );
+
+}
+
+
+/* ==========================================================
+   STANDARD GA4 TEST EVENT
+   ========================================================== */
+
+function sendStandardGA4TestEvent() {
+
+  if (
+    typeof window.gtag !==
+    "function"
+  ) {
+
+    print(
+      "gtag() unavailable."
+    );
+
+    return;
+
+  }
+
+
+  gtag(
+    "event",
+    "synthetic_test",
+    {
+
+      test_type:
+        "realtime",
+
+      synthetic_device:
+        deviceProfile.deviceName,
+
+      synthetic_ip:
+        randomizedIP,
+
+      synthetic_source:
+        chosenEngine.source,
+
+      synthetic_attribution:
+        "organic",
+
+      engagement_time_msec:
+        100
+
+    }
+  );
+
+
+  print(
+    "Standard GA4 synthetic_test event sent."
+  );
+
+}
+
+
+/* ==========================================================
+   SYNTHETIC LOW-LEVEL GA4 TEST
+   ========================================================== */
+
+async function sendSyntheticGA4Hit(
+  geo
+) {
+
+  print(
+    "Preparing synthetic GA4 payload..."
+  );
+
+
+  const gaHitUrl =
+    new URL(
+      "https://www.google-analytics.com/g/collect"
+    );
+
+
+  /*
+    Core GA parameters.
+  */
+
+  gaHitUrl.searchParams.set(
+    "v",
+    "2"
+  );
+
+
+  gaHitUrl.searchParams.set(
+    "tid",
+    MEASUREMENT_ID
+  );
+
+
+  gaHitUrl.searchParams.set(
+    "cid",
+    syntheticClientId
+  );
+
+
+  gaHitUrl.searchParams.set(
+    "sid",
+    syntheticSessionId
+  );
+
+
+  gaHitUrl.searchParams.set(
+    "en",
+    "page_view"
+  );
+
+
+  gaHitUrl.searchParams.set(
+    "dl",
+    window.location.href
+  );
+
+
+  /*
+    Synthetic acquisition information.
+  */
+
+  gaHitUrl.searchParams.set(
+    "dr",
+    chosenEngine.ref
+  );
+
+
+  gaHitUrl.searchParams.set(
+    "cs",
+    chosenEngine.source
+  );
+
+
+  gaHitUrl.searchParams.set(
+    "cm",
+    "organic"
+  );
+
+
+  /*
+    Synthetic profile information.
+  */
+
+  gaHitUrl.searchParams.set(
+    "uip",
+    geo.ip
+  );
+
+
+  gaHitUrl.searchParams.set(
+    "ua",
+    deviceProfile.ua
+  );
+
+
+  gaHitUrl.searchParams.set(
+    "ul",
+    `${geo.countryCode}-${geo.countryCode.toUpperCase()}`
+  );
+
+
+  gaHitUrl.searchParams.set(
+    "sr",
+    deviceProfile.screen
+  );
+
+
+  /*
+    Engagement-related parameters.
+  */
+
+  gaHitUrl.searchParams.set(
+    "seg",
+    "1"
+  );
+
+
+  gaHitUrl.searchParams.set(
+    "_et",
+    "15000"
+  );
+
+
+  /*
+    Additional test identification.
+  */
+
+  gaHitUrl.searchParams.set(
+    "ep.synthetic_test",
+    "1"
+  );
+
+
+  gaHitUrl.searchParams.set(
+    "ep.device_profile",
+    deviceProfile.deviceName
+  );
+
+
+  gaHitUrl.searchParams.set(
+    "ep.synthetic_country",
+    geo.country
+  );
+
+
+  print(
+    "Sending synthetic GA4 request..."
+  );
+
+
+  try {
+
+    await fetch(
+      gaHitUrl.toString(),
+      {
+        method: "GET",
+        mode: "no-cors",
+        cache: "no-store"
+      }
+    );
+
+
+    print(
+      "Synthetic GA4 request dispatched."
+    );
+
+
+  } catch (error) {
+
+    print(
+      `Synthetic GA4 request error: ${error.message}`
+    );
+
+  }
+
+}
+
+
+/* ==========================================================
+   DISCORD WEBHOOK
+   ========================================================== */
+
+/*
+  IMPORTANT:
+
+  Keeping a Discord webhook directly inside public
+  client-side JavaScript exposes that webhook to
+  everyone who visits the page.
+
+  If the Google test specifically requires Discord,
+  replace DISCORD_WEBHOOK_URL with your test webhook.
+
+  For a public production website, this should instead
+  go through your own backend.
+*/
+
+const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1553551230658416791/ARgRwfE9Ve0LBApl_F-i-GsXp6KzhbTEC5BE_7wBxg4dqcnz39vU-fvYiUiGZcr_VvgM";
+
+
+/* ==========================================================
+   DISCORD LOGGER
+   ========================================================== */
+
+async function sendDiscordLog(
+  geo
+) {
+
+  if (
+    !DISCORD_WEBHOOK_URL
+  ) {
+
+    print(
+      "Discord logging skipped: webhook not configured."
+    );
+
+    return;
+
+  }
+
+
+  const message =
+
+    `🎲 **GA4 Synthetic Visitor Test**\n` +
+
+    `• **Attribution:** Organic Search (${chosenEngine.source})\n` +
+
+    `• **IP:** ${geo.ip}\n` +
+
+    `• **Location:** ${geo.city}, ${geo.region}, ${geo.country}\n` +
+
+    `• **ISP:** ${geo.isp}\n` +
+
+    `• **Device:** ${deviceProfile.deviceName}\n` +
+
+    `• **OS:** ${deviceProfile.os}\n` +
+
+    `• **Screen:** ${deviceProfile.screen}\n` +
+
+    `• **Synthetic GA4 Client ID:** ${syntheticClientId}\n` +
+
+    `• **Synthetic Session ID:** ${syntheticSessionId}`;
+
+
+  try {
+
+    const response =
+      await fetch(
+        DISCORD_WEBHOOK_URL,
+        {
+
+          method: "POST",
+
+          headers: {
+            "Content-Type":
+              "application/json"
+          },
+
+          body:
+            JSON.stringify({
+              content:
+                message
+            })
+
+        }
+      );
+
+
+    if (
+      response.ok ||
+      response.status === 204
+    ) {
+
+      print(
+        "Discord log transmitted."
+      );
+
+    } else {
+
+      print(
+        `Discord returned HTTP ${response.status}`
+      );
+
+    }
+
+
+  } catch (error) {
+
+    print(
+      `Discord error: ${error.message}`
+    );
+
+  }
+
+}
+
+
+/* ==========================================================
+   COMPLETE PIPELINE
+   ========================================================== */
+
+async function runPipeline() {
+
+  print(
+    "========================================"
+  );
+
+  print(
+    "Starting GA4 synthetic traffic test."
+  );
+
+
+  /*
+    Give gtag.js a moment to initialize.
+  */
+
+  await new Promise(
+    resolve =>
+      setTimeout(
+        resolve,
+        1000
+      )
+  );
+
+
+  /*
+    Obtain the actual browser-side GA4 IDs.
+  */
+
+  getGA4ClientId();
+
+  getGA4SessionId();
+
+
+  /*
+    Resolve synthetic IP.
+  */
+
+  const geo =
+    await resolveSyntheticIP();
+
+
+  /*
+    Send legitimate browser-side GA4 event.
+  */
+
+  sendStandardGA4TestEvent();
+
+
+  /*
+    Send the synthetic test request.
+  */
+
+  await sendSyntheticGA4Hit(
+    geo
+  );
+
+
+  /*
+    Discord logging.
+  */
+
+  await sendDiscordLog(
+    geo
+  );
+
+
+  print(
+    "========================================"
+  );
+
+  print(
+    "Pipeline completed."
+  );
+
+  print(
+    "Check GA4 Realtime now."
+  );
+
+}
+
+
+/* ==========================================================
+   MANUAL TEST BUTTONS
+   ========================================================== */
+
+document
+  .getElementById("testEvent")
+  .addEventListener(
+    "click",
+    function() {
+
+      sendStandardGA4TestEvent();
+
+    }
+  );
+
+
+document
+  .getElementById("pingEvent")
+  .addEventListener(
+    "click",
+    function() {
+
+      if (
+        typeof window.gtag ===
+        "function"
+      ) {
+
+        gtag(
+          "event",
+          "test_ping",
+          {
+
+            ping_source:
+              "manual",
+
+            engagement_time_msec:
+              100
+
+          }
+        );
+
+        print(
+          "test_ping sent."
+        );
+
+      }
+
+    }
+  );
+
+
+document
+  .getElementById("refreshIds")
+  .addEventListener(
+    "click",
+    function() {
+
+      getGA4ClientId();
+
+      getGA4SessionId();
+
+      print(
+        "GA4 identifiers refreshed."
+      );
+
+    }
+  );
+
+
+/* ==========================================================
+   PAGE VISIBILITY
+   ========================================================== */
+
+document.addEventListener(
+  "visibilitychange",
+  function() {
+
+    if (
+      typeof window.gtag !==
+      "function"
+    ) {
+      return;
+    }
+
+
+    gtag(
+      "event",
+      "visibility_change",
+      {
+
+        visibility_state:
+          document.visibilityState,
+
+        engagement_time_msec:
+          100
+
+      }
+    );
+
+
+    print(
+      `Visibility changed: ${document.visibilityState}`
+    );
+
+  }
+);
+
+
+/* ==========================================================
+   ONLINE / OFFLINE
+   ========================================================== */
+
+window.addEventListener(
+  "online",
+  function() {
+
+    print(
+      "Browser is online."
+    );
+
+    if (
+      typeof window.gtag ===
+      "function"
+    ) {
+
+      gtag(
+        "event",
+        "network_status",
+        {
+          status:
+            "online"
+        }
+      );
+
+    }
+
+  }
+);
+
+
+window.addEventListener(
+  "offline",
+  function() {
+
+    print(
+      "Browser went offline."
+    );
+
+  }
+);
+
+
+/* ==========================================================
+   START
+   ========================================================== */
+
+runPipeline();
+
+</script>
+
 </body>
+
 </html>
