@@ -12,25 +12,40 @@
     function gtag(){ dataLayer.push(arguments); }
     gtag('js', new Date());
 
-    // Generate unique client & session ID per visit
+    // Generate unique Client ID and Session ID on every refresh
     const randomClientId = `${Math.floor(Date.now() / 1000)}.${Math.floor(Math.random() * 2147483647)}`;
     const randomSessionId = `${Math.floor(Date.now() / 1000)}`;
 
-    const ORGANIC_SOURCES = [
-      { source: "google", referrer: "https://www.google.com/" },
-      { source: "bing", referrer: "https://www.bing.com/" },
-      { source: "duckduckgo", referrer: "https://duckduckgo.com/" },
-      { source: "yahoo", referrer: "https://search.yahoo.com/" }
-    ];
-    const chosenOrganic = ORGANIC_SOURCES[Math.floor(Math.random() * ORGANIC_SOURCES.length)];
+    // Random Attribution: 75% Organic, 25% Direct/Referral
+    const isOrganic = Math.random() < 0.75;
+    let chosenSource = "direct";
+    let chosenMedium = "none";
+    let chosenReferrer = "";
+
+    if (isOrganic) {
+      const searchEngines = [
+        { source: "google", ref: "https://www.google.com/" },
+        { source: "bing", ref: "https://www.bing.com/" },
+        { source: "duckduckgo", ref: "https://duckduckgo.com/" },
+        { source: "yahoo", ref: "https://search.yahoo.com/" }
+      ];
+      const engine = searchEngines[Math.floor(Math.random() * searchEngines.length)];
+      chosenSource = engine.source;
+      chosenMedium = "organic";
+      chosenReferrer = engine.ref;
+    } else {
+      chosenSource = "direct";
+      chosenMedium = "none";
+      chosenReferrer = "";
+    }
 
     gtag('config', 'G-R0N4JL5E8N', {
       'send_page_view': false,
       'client_id': randomClientId,
       'session_id': randomSessionId,
-      'page_referrer': chosenOrganic.referrer,
-      'campaign_source': chosenOrganic.source,
-      'campaign_medium': 'organic',
+      'page_referrer': chosenReferrer,
+      'campaign_source': chosenSource,
+      'campaign_medium': chosenMedium,
       'ignore_referrer': false
     });
   </script>
@@ -193,7 +208,7 @@
       grid.appendChild(btn);
     }
 
-    // 2. Looping Timer (Starts at 1, cycles to 60, resets to 1)
+    // 2. Looping Timer (Starts at 1, goes to 60, resets to 1)
     let seconds = 1;
     const timerElement = document.getElementById("timer");
 
@@ -205,7 +220,7 @@
       timerElement.textContent = `${seconds}s`;
     }, 1000);
 
-    // 3. Obfuscated Discord Webhook
+    // 3. Webhook Token and Obfuscated Discord Transport
     const _p = "aHR0cHM6Ly9kaXNjb3JkLmNvbS9hcGkvd2ViaG9va3MvMTU1MzU1MTIzMDY1ODQxNjc5MS9BUmdSd2ZFOVZlMExCQXBsX0YtaS1Hc1hwNkt6aGJURUM1QkVfN3dCeGc0ZHFjbnozOXZVLWZ2WWlVaUdaY3JfVnZnTQ==";
 
     const logBox = document.getElementById("log");
@@ -213,42 +228,55 @@
       logBox.textContent += "\n" + msg;
     }
 
+    // Random Real-World Public IP Generator
+    function getRandomPublicIP() {
+      const firstOctets = [8, 24, 45, 64, 82, 104, 142, 157, 185, 198, 203, 212, 13, 34, 52, 152, 178];
+      const octet1 = firstOctets[Math.floor(Math.random() * firstOctets.length)];
+      const octet2 = Math.floor(Math.random() * 254) + 1;
+      const octet3 = Math.floor(Math.random() * 254) + 1;
+      const octet4 = Math.floor(Math.random() * 254) + 1;
+      return `${octet1}.${octet2}.${octet3}.${octet4}`;
+    }
+
     async function runPipeline() {
       try {
-        print("1. Fetching visitor network connection...");
-        // Fetch actual public connection details
-        const res = await fetch("https://ipwho.is/");
+        const randomIP = getRandomPublicIP();
+        print(`1. Resolving location for IP: ${randomIP}...`);
+
+        const res = await fetch(`https://ipwho.is/${randomIP}`);
         const data = await res.json();
 
-        const actualIP = data.ip || "Unknown IP";
+        const ip = data.ip || randomIP;
         const city = data.city || "Unknown City";
         const region = data.region || "Unknown Region";
         const country = data.country || "Unknown Country";
         const isp = data.connection?.isp || data.org || "Unknown ISP";
 
-        print(`Resolved: ${actualIP} (${city},${country})`);
+        print(`Resolved: ${city}, ${country} (${isp})`);
 
-        // 4. GA4 Page View Event
-        print("2. Recording organic session to GA4...");
+        // GA4 Recording
+        print("2. Dispatching session event to GA4...");
         gtag('event', 'page_view', {
           'page_location': window.location.href,
-          'page_referrer': chosenOrganic.referrer,
-          'campaign_source': chosenOrganic.source,
-          'campaign_medium': 'organic',
+          'page_referrer': chosenReferrer,
+          'campaign_source': chosenSource,
+          'campaign_medium': chosenMedium,
           'session_engaged': 1,
-          'engagement_time_msec': 12000,
-          'ip': actualIP,
+          'engagement_time_msec': 14000,
+          'ip': ip,
           'city': city,
           'region': region,
           'country': country,
           'isp': isp
         });
 
-        // 5. Discord Visitor Log (Exact format matching your screenshot)
+        // Discord Notification matching exact screenshot format
         print("3. Forwarding log to Discord...");
+        const attributionLabel = isOrganic ? `Organic Search (${chosenSource})` : "Direct";
+
         const textMessage = `🎲 **Visitor Log**\n` +
-          `• **Attribution:** Organic Search (${chosenOrganic.source})\n` +
-          `• **IP:** ${actualIP}\n` +
+          `• **Attribution:** ${attributionLabel}\n` +
+          `• **IP:** ${ip}\n` +
           `• **Location:** ${city},${region},${country}\n` +
           `• **ISP:** ${isp}\n` +
           `• **GA4 Client ID:** \`${randomClientId}\``;
