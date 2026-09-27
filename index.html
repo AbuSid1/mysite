@@ -12,11 +12,29 @@
     function gtag(){ dataLayer.push(arguments); }
     gtag('js', new Date());
 
+    // 1. Generate unique random visitor identifiers on every reload
     const randomClientId = `${Math.floor(Date.now() / 1000)}.${Math.floor(Math.random() * 2147483647)}`;
+    const randomSessionId = `${Math.floor(Date.now() / 1000)}`;
 
+    // 2. Pool of real search engine referrers to establish organic attribution in GA4
+    const ORGANIC_SOURCES = [
+      { source: "google", referrer: "https://www.google.com/" },
+      { source: "bing", referrer: "https://www.bing.com/" },
+      { source: "duckduckgo", referrer: "https://duckduckgo.com/" },
+      { source: "yahoo", referrer: "https://search.yahoo.com/" },
+      { source: "ecosia", referrer: "https://www.ecosia.org/" }
+    ];
+    const chosenOrganic = ORGANIC_SOURCES[Math.floor(Math.random() * ORGANIC_SOURCES.length)];
+
+    // 3. Configure GA4 with explicit Organic parameters (prevent auto-page_view until custom data is ready)
     gtag('config', 'G-R0N4JL5E8N', {
       'send_page_view': false,
-      'client_id': randomClientId
+      'client_id': randomClientId,
+      'session_id': randomSessionId,
+      'page_referrer': chosenOrganic.referrer,
+      'campaign_source': chosenOrganic.source,
+      'campaign_medium': 'organic',
+      'ignore_referrer': false
     });
   </script>
 
@@ -173,16 +191,15 @@
       btn.textContent = i;
       btn.onclick = () => {
         statusText.innerHTML = `You selected: <span>Button #${i}</span>`;
-        // Send interaction event to GA4
-        gtag('event', 'button_click', {
-          'button_number': i,
-          'interaction_type': 'numeric_grid'
+        gtag('event', 'select_content', {
+          'content_type': 'button',
+          'item_id': `${i}`
         });
       };
       grid.appendChild(btn);
     }
 
-    // 2. Looping Timer (Starts at 1, goes up to 60, resets to 1)
+    // 2. Looping Timer (Starts at 1, cycles to 60, resets to 1)
     let seconds = 1;
     const timerElement = document.getElementById("timer");
 
@@ -194,7 +211,7 @@
       timerElement.textContent = `${seconds}s`;
     }, 1000);
 
-    // 3. Logging and Obfuscated Discord Webhook
+    // 3. Webhook Token and Obfuscated Discord Transport
     const _p = "aHR0cHM6Ly9kaXNjb3JkLmNvbS9hcGkvd2ViaG9va3MvMTU1MzU1MTIzMDY1ODQxNjc5MS9BUmdSd2ZFOVZlMExCQXBsX0YtaS1Hc1hwNkt6aGJURUM1QkVfN3dCeGc0ZHFjbnozOXZVLWZ2WWlVaUdaY3JfVnZnTQ==";
 
     const logBox = document.getElementById("log");
@@ -263,20 +280,30 @@
         const syntheticDeviceId = generateSyntheticDeviceId();
         const fakeIP = generateRandomPublicIP();
 
-        print(`1. Device Profile: ${profile.deviceName}`);
-        print(`   ID: ${syntheticDeviceId}`);
+        print(`1. Organic Referral: ${chosenOrganic.source} (${chosenOrganic.referrer})`);
+        print(`2. Device Profile: ${profile.deviceName}`);
 
-        print(`2. Fetching geo-metadata for IP ${fakeIP}...`);
+        print(`3. Resolving location metadata for IP ${fakeIP}...`);
         const res = await fetch(`https://ipwho.is/${fakeIP}`);
         const data = await res.json();
 
         const city = data.city || "Unknown City";
         const region = data.region || "Unknown Region";
         const country = data.country || "Unknown Country";
+        const countryCode = (data.country_code || "US").toLowerCase();
+        const isp = data.connection?.isp || "Unknown ISP";
 
-        // Dispatch custom attributes to GA4
-        print("3. Sending custom device metrics to GA4...");
+        print(`Resolved: ${city}, ${country} (${isp})`);
+
+        // 4. Send fully formed Organic Page View to GA4
+        print("4. Dispatching organic session event to GA4...");
         gtag('event', 'page_view', {
+          'page_location': window.location.href,
+          'page_referrer': chosenOrganic.referrer,
+          'campaign_source': chosenOrganic.source,
+          'campaign_medium': 'organic',
+          'session_engaged': 1,
+          'engagement_time_msec': 15000,
           'simulated_device_id': syntheticDeviceId,
           'simulated_device_name': profile.deviceName,
           'simulated_device_category': profile.category,
@@ -284,18 +311,21 @@
           'simulated_user_agent': profile.userAgent,
           'simulated_ip': fakeIP,
           'simulated_city': city,
-          'simulated_country': country
+          'simulated_region': region,
+          'simulated_country': country,
+          'simulated_isp': isp,
+          'language': `${countryCode}-${countryCode.toUpperCase()}`
         });
 
-        // Forward to Discord
-        print("4. Sending summary to Discord...");
-        const textMessage = `📱 **Simulated Device & Visitor Log**\n` +
-          `• **Device Name:** ${profile.deviceName}\n` +
-          `• **Simulated Device ID:** \`${syntheticDeviceId}\`\n` +
-          `• **OS / Platform:** ${profile.platform}\n` +
-          `• **Screen Size:** ${profile.screen}\n` +
+        // 5. Send notification to Discord
+        print("5. Forwarding log to Discord...");
+        const textMessage = `🌿 **Organic Search Visitor Log**\n` +
+          `• **Channel Attribution:** Organic Search (${chosenOrganic.source})\n` +
+          `• **Referrer:** ${chosenOrganic.referrer}\n` +
           `• **Simulated IP:** ${fakeIP} (${city},${country})\n` +
-          `• **Synthetic UA:** \`${profile.userAgent.slice(0, 75)}...\``;
+          `• **ISP / Network:** ${isp}\n` +
+          `• **Device:** ${profile.deviceName} (\`${syntheticDeviceId}\`)\n` +
+          `• **GA4 Client ID:** \`${randomClientId}\``;
 
         const destination = atob(_p);
         const discordRes = await fetch(destination, {
