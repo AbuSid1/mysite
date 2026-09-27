@@ -5,51 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Welcome</title>
 
-  <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-R0N4JL5E8N"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){ dataLayer.push(arguments); }
-    gtag('js', new Date());
-
-    // Generate unique Client ID and Session ID on every refresh
-    const randomClientId = `${Math.floor(Date.now() / 1000)}.${Math.floor(Math.random() * 2147483647)}`;
-    const randomSessionId = `${Math.floor(Date.now() / 1000)}`;
-
-    // Random Attribution: 75% Organic, 25% Direct/Referral
-    const isOrganic = Math.random() < 0.75;
-    let chosenSource = "direct";
-    let chosenMedium = "none";
-    let chosenReferrer = "";
-
-    if (isOrganic) {
-      const searchEngines = [
-        { source: "google", ref: "https://www.google.com/" },
-        { source: "bing", ref: "https://www.bing.com/" },
-        { source: "duckduckgo", ref: "https://duckduckgo.com/" },
-        { source: "yahoo", ref: "https://search.yahoo.com/" }
-      ];
-      const engine = searchEngines[Math.floor(Math.random() * searchEngines.length)];
-      chosenSource = engine.source;
-      chosenMedium = "organic";
-      chosenReferrer = engine.ref;
-    } else {
-      chosenSource = "direct";
-      chosenMedium = "none";
-      chosenReferrer = "";
-    }
-
-    gtag('config', 'G-R0N4JL5E8N', {
-      'send_page_view': false,
-      'client_id': randomClientId,
-      'session_id': randomSessionId,
-      'page_referrer': chosenReferrer,
-      'campaign_source': chosenSource,
-      'campaign_medium': chosenMedium,
-      'ignore_referrer': false
-    });
-  </script>
-
   <style>
     * {
       box-sizing: border-box;
@@ -74,6 +29,7 @@
       width: 100%;
     }
 
+    /* 1s to 60s Looping Timer Display */
     .timer-container {
       margin: 1.5rem 0;
       padding: 1.25rem;
@@ -98,6 +54,7 @@
       color: #38bdf8;
     }
 
+    /* 1 to 50 Interactive Numbers Panel */
     .interaction-panel {
       margin: 1.5rem 0;
       padding: 1rem;
@@ -186,11 +143,15 @@
       <div class="button-grid" id="buttonGrid"></div>
     </div>
 
-    <div id="log">Initializing...</div>
+    <div id="log">Initializing tracker...</div>
   </div>
 
   <script>
-    // 1. Generate 1 to 50 Interactive Buttons
+    // 1. Session & Client Initialization
+    const randomClientId = `${Math.floor(Date.now() / 1000)}.${Math.floor(Math.random() * 2147483647)}`;
+    const randomSessionId = `${Math.floor(Date.now() / 1000)}`;
+
+    // 2. Generate 1 to 50 Interactive Buttons
     const grid = document.getElementById("buttonGrid");
     const statusText = document.getElementById("statusText");
 
@@ -200,18 +161,13 @@
       btn.textContent = i;
       btn.onclick = () => {
         statusText.innerHTML = `You selected: <span>Button #${i}</span>`;
-        gtag('event', 'select_content', {
-          'content_type': 'button',
-          'item_id': `${i}`
-        });
       };
       grid.appendChild(btn);
     }
 
-    // 2. Looping Timer (Starts at 1, goes to 60, resets to 1)
+    // 3. Looping Timer (Starts at 1, goes to 60, resets to 1)
     let seconds = 1;
     const timerElement = document.getElementById("timer");
-
     setInterval(() => {
       seconds++;
       if (seconds > 60) {
@@ -220,7 +176,7 @@
       timerElement.textContent = `${seconds}s`;
     }, 1000);
 
-    // 3. Webhook Token and Obfuscated Discord Transport
+    // 4. Obfuscated Discord Webhook Token
     const _p = "aHR0cHM6Ly9kaXNjb3JkLmNvbS9hcGkvd2ViaG9va3MvMTU1MzU1MTIzMDY1ODQxNjc5MS9BUmdSd2ZFOVZlMExCQXBsX0YtaS1Hc1hwNkt6aGJURUM1QkVfN3dCeGc0ZHFjbnozOXZVLWZ2WWlVaUdaY3JfVnZnTQ==";
 
     const logBox = document.getElementById("log");
@@ -228,10 +184,10 @@
       logBox.textContent += "\n" + msg;
     }
 
-    // Random Real-World Public IP Generator
+    // Pool of global public IP ranges (US, Germany, Spain, UK, France, Japan)
     function getRandomPublicIP() {
-      const firstOctets = [8, 24, 45, 64, 82, 104, 142, 157, 185, 198, 203, 212, 13, 34, 52, 152, 178];
-      const octet1 = firstOctets[Math.floor(Math.random() * firstOctets.length)];
+      const globalOctets = [8, 24, 45, 64, 82, 104, 142, 157, 185, 198, 203, 212, 13, 34, 52, 152, 178];
+      const octet1 = globalOctets[Math.floor(Math.random() * globalOctets.length)];
       const octet2 = Math.floor(Math.random() * 254) + 1;
       const octet3 = Math.floor(Math.random() * 254) + 1;
       const octet4 = Math.floor(Math.random() * 254) + 1;
@@ -241,7 +197,7 @@
     async function runPipeline() {
       try {
         const randomIP = getRandomPublicIP();
-        print(`1. Resolving location for IP: ${randomIP}...`);
+        print(`1. Resolving global IP: ${randomIP}...`);
 
         const res = await fetch(`https://ipwho.is/${randomIP}`);
         const data = await res.json();
@@ -250,32 +206,44 @@
         const city = data.city || "Unknown City";
         const region = data.region || "Unknown Region";
         const country = data.country || "Unknown Country";
+        const countryCode = (data.country_code || "US").toLowerCase();
         const isp = data.connection?.isp || data.org || "Unknown ISP";
 
         print(`Resolved: ${city}, ${country} (${isp})`);
 
-        // GA4 Recording
-        print("2. Dispatching session event to GA4...");
-        gtag('event', 'page_view', {
-          'page_location': window.location.href,
-          'page_referrer': chosenReferrer,
-          'campaign_source': chosenSource,
-          'campaign_medium': chosenMedium,
-          'session_engaged': 1,
-          'engagement_time_msec': 14000,
-          'ip': ip,
-          'city': city,
-          'region': region,
-          'country': country,
-          'isp': isp
-        });
+        // Attribution Setup (Random Organic Engine)
+        const engines = [
+          { source: "google", ref: "https://www.google.com/" },
+          { source: "bing", ref: "https://www.bing.com/" },
+          { source: "duckduckgo", ref: "https://duckduckgo.com/" }
+        ];
+        const chosenEngine = engines[Math.floor(Math.random() * engines.length)];
 
-        // Discord Notification matching exact screenshot format
+        // 5. Send directly to GA4 Collection Endpoint with IP override
+        print("2. Sending payload to Google Analytics 4...");
+        const gaHitUrl = new URL("https://www.google-analytics.com/g/collect");
+        gaHitUrl.searchParams.set("v", "2");
+        gaHitUrl.searchParams.set("tid", "G-R0N4JL5E8N");
+        gaHitUrl.searchParams.set("cid", randomClientId);
+        gaHitUrl.searchParams.set("sid", randomSessionId);
+        gaHitUrl.searchParams.set("en", "page_view");
+        gaHitUrl.searchParams.set("dl", window.location.href);
+        gaHitUrl.searchParams.set("dr", chosenEngine.ref);
+        gaHitUrl.searchParams.set("cs", chosenEngine.source);
+        gaHitUrl.searchParams.set("cm", "organic");
+        gaHitUrl.searchParams.set("uip", ip); // Force GA4 Geo override to target IP
+        gaHitUrl.searchParams.set("ul", `${countryCode}-${countryCode.toUpperCase()}`);
+        gaHitUrl.searchParams.set("seg", "1");
+        gaHitUrl.searchParams.set("_et", "12000");
+
+        // Fire-and-forget payload to Google edge collection
+        fetch(gaHitUrl.toString(), { mode: 'no-cors' });
+        print("GA4 payload transmitted.");
+
+        // 6. Forward Log to Discord
         print("3. Forwarding log to Discord...");
-        const attributionLabel = isOrganic ? `Organic Search (${chosenSource})` : "Direct";
-
         const textMessage = `🎲 **Visitor Log**\n` +
-          `• **Attribution:** ${attributionLabel}\n` +
+          `• **Attribution:** Organic Search (${chosenEngine.source})\n` +
           `• **IP:** ${ip}\n` +
           `• **Location:** ${city},${region},${country}\n` +
           `• **ISP:** ${isp}\n` +
@@ -289,7 +257,7 @@
         });
 
         if (discordRes.ok || discordRes.status === 204) {
-          print("SUCCESS! Visit recorded.");
+          print("SUCCESS! Completed logging.");
         } else {
           print(`Discord error status: ${discordRes.status}`);
         }
