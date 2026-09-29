@@ -16,7 +16,7 @@
      ================================================== -->
 
 <script async
-src="https://www.googletagmanager.com/gtag/js?id=G-R0N4JL5E8N">
+src="https://www.googletagmanager.com/gtag/js?id=G-W60ZSDKWTS">
 </script>
 
 <script>
@@ -30,7 +30,7 @@ function gtag() {
 
 gtag("js", new Date());
 
-gtag("config", "G-R0N4JL5E8N", {
+gtag("config", "G-W60ZSDKWTS", {
 
     send_page_view: true,
 
@@ -475,7 +475,7 @@ Waiting...
    ===================================================== */
 
 const MEASUREMENT_ID =
-    "G-R0N4JL5E8N";
+    "G-W60ZSDKWTS";
 
 
 /*
@@ -819,7 +819,7 @@ const device =
     randomItem(DEVICES);
 
 
-const location =
+const syntheticLocation =
     randomItem(LOCATIONS);
 
 
@@ -838,12 +838,14 @@ document.getElementById("device")
 
 document.getElementById("ip")
     .textContent =
-    location.ip;
+    syntheticLocation.ip;
 
 
 document.getElementById("location")
     .textContent =
-    `${location.city}, ${location.region}, ${location.country}`;
+    `${syntheticLocation.city},
+     ${syntheticLocation.region},
+     ${syntheticLocation.country}`;
 
 
 document.getElementById("attribution")
@@ -900,21 +902,20 @@ function buildPayload() {
         session_id:
             sessionId,
 
-        ip_override:
-            location.ip,
+       ip_override:
+    syntheticLocation.ip,
 
-        user_location: {
+       user_location: {
 
-            city:
-                location.city,
+    city:
+        syntheticLocation.city,
 
-            region_id:
-                location.region,
+    region_id:
+        syntheticLocation.region,
 
-            country_id:
-                location.country
-
-        },
+    country_id:
+        syntheticLocation.country
+},
 
         device: {
 
@@ -1223,7 +1224,11 @@ log(
 );
 
 log(
-    `Synthetic location: ${location.city}, ${location.country}`
+    `Synthetic location: ${
+        syntheticLocation.city
+    }, ${
+        syntheticLocation.country
+    }`
 );
 
 log(
