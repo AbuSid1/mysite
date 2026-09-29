@@ -15,28 +15,22 @@
      ATTRIBUTION BOOTSTRAP
      =====================================================
 
-     IMPORTANT:
+     First visit:
+       1. Select random search engine.
+       2. Add UTM parameters.
+       3. Reload the page with those UTM parameters.
+       4. Only AFTER that does the Google tag load.
 
-     On the first visit, we create a randomized UTM URL
-     BEFORE loading the Google tag.
-
-     Example:
-
-     ?utm_source=bing
-     &utm_medium=organic
-     &utm_campaign=synthetic_ga4_test
-     &synthetic_test=1
-
-     This makes the UTM values part of the actual landing
-     URL instead of changing the URL after the GA4 session
-     has started.
+     This is important because the UTM parameters need to
+     be present on the landing URL when the GA4 session
+     begins.
      ===================================================== -->
 
 <script>
 
 (function () {
 
-    const SOURCES = [
+    const SEARCH_SOURCES = [
 
         {
             source: "google",
@@ -83,68 +77,63 @@
     }
 
 
-    const currentUrl =
+    const currentURL =
         new URL(
             window.location.href
         );
 
 
-    const alreadyPrepared =
-        currentUrl.searchParams.get(
+    const isSyntheticLanding =
+        currentURL.searchParams.get(
             "synthetic_test"
         ) === "1";
 
 
     /*
-      If this is the first landing, create a randomized
-      UTM URL and navigate to it.
-
-      Google tag is NOT loaded before this happens.
+      First visit:
+      create the actual UTM-tagged landing URL.
     */
 
-    if (!alreadyPrepared) {
+    if (!isSyntheticLanding) {
 
-        const attribution =
+        const selected =
             randomItem(
-                SOURCES
+                SEARCH_SOURCES
             );
 
 
-        currentUrl.searchParams.set(
+        currentURL.searchParams.set(
             "utm_source",
-            attribution.source
+            selected.source
         );
 
 
-        currentUrl.searchParams.set(
+        currentURL.searchParams.set(
             "utm_medium",
-            attribution.medium
+            selected.medium
         );
 
 
-        currentUrl.searchParams.set(
+        currentURL.searchParams.set(
             "utm_campaign",
             "synthetic_ga4_test"
         );
 
 
-        currentUrl.searchParams.set(
+        currentURL.searchParams.set(
             "utm_content",
             "synthetic_traffic"
         );
 
 
-        currentUrl.searchParams.set(
+        currentURL.searchParams.set(
             "synthetic_test",
             "1"
         );
 
 
         /*
-          Tell the rest of this document that navigation
-          is being performed.
-
-          The application code below will not initialize
+          Application JavaScript must not initialize
           during this first document.
         */
 
@@ -153,7 +142,7 @@
 
 
         window.location.replace(
-            currentUrl.toString()
+            currentURL.toString()
         );
 
 
@@ -162,34 +151,33 @@
 
 
     /*
-      The page has returned with the UTM parameters.
-      Read them and make them available globally.
+      Second load:
+      read the UTM values from the actual URL.
     */
 
     window.SYNTHETIC_ATTRIBUTION = {
 
         source:
-            currentUrl.searchParams.get(
+            currentURL.searchParams.get(
                 "utm_source"
             ) || "google",
 
         medium:
-            currentUrl.searchParams.get(
+            currentURL.searchParams.get(
                 "utm_medium"
             ) || "organic",
 
         campaign:
-            currentUrl.searchParams.get(
+            currentURL.searchParams.get(
                 "utm_campaign"
             ) || "synthetic_ga4_test",
 
         content:
-            currentUrl.searchParams.get(
+            currentURL.searchParams.get(
                 "utm_content"
             ) || "synthetic_traffic"
 
     };
-
 
 })();
 
@@ -206,9 +194,11 @@ body {
 
     margin: 0;
 
-    background: #0b1220;
+    background:
+        #0b1220;
 
-    color: #ffffff;
+    color:
+        #ffffff;
 
     font-family:
         Arial,
@@ -244,7 +234,7 @@ body {
 
     box-shadow:
         0 10px 30px
-        rgba(0,0,0,.25);
+        rgba(0, 0, 0, 0.25);
 }
 
 h1 {
@@ -291,14 +281,23 @@ h2 {
     border-radius:
         10px;
 
+    margin-bottom:
+        12px;
+
+    background:
+        #33280d;
+
+    color:
+        #facc15;
+}
+
+.status.success {
+
     background:
         #10251c;
 
     color:
         #4ade80;
-
-    margin-bottom:
-        15px;
 }
 
 .status.error {
@@ -308,15 +307,6 @@ h2 {
 
     color:
         #f87171;
-}
-
-.status.warning {
-
-    background:
-        #33280d;
-
-    color:
-        #facc15;
 }
 
 button {
@@ -352,7 +342,7 @@ button:hover {
 button:disabled {
 
     opacity:
-        .45;
+        0.45;
 
     cursor:
         not-allowed;
@@ -367,13 +357,7 @@ button:disabled {
         none;
 }
 
-.primary:hover {
-
-    background:
-        #0369a1;
-}
-
-.success {
+.success-button {
 
     background:
         #166534;
@@ -444,21 +428,17 @@ pre {
 
 @media(max-width:600px) {
 
-    .container {
-        width:
-            94%;
-    }
-
     .buttons {
+
         grid-template-columns:
             repeat(5, 1fr);
     }
 
     button {
+
         padding:
             11px 7px;
     }
-
 }
 
 </style>
@@ -485,7 +465,7 @@ pre {
 
 <div
     id="gaStatus"
-    class="status warning">
+    class="status">
 
     ● Initializing Google tag...
 
@@ -494,17 +474,17 @@ pre {
 
 <div
     id="workerStatus"
-    class="status warning">
+    class="status">
 
-    ● Cloudflare Worker not tested
+    ● Checking Worker...
 
 </div>
 
 
 <p>
 
-    The landing URL contains randomized UTM source
-    and medium parameters before GA4 starts.
+    This page creates a synthetic test profile while
+    maintaining a real GA4 web session for attribution.
 
 </p>
 
@@ -520,6 +500,7 @@ pre {
 <h2>
     Session elapsed time
 </h2>
+
 
 <div
     id="timer"
@@ -646,13 +627,13 @@ pre {
     id="campaign"
     class="value">
 
-    synthetic_ga4_test
+    Loading...
 
 </div>
 
 
 <h2>
-    Current landing URL
+    Actual landing URL
 </h2>
 
 <div
@@ -674,7 +655,7 @@ pre {
 <div class="card">
 
 <h2>
-    GA4 Client ID
+    Real GA4 Client ID
 </h2>
 
 <div
@@ -687,7 +668,7 @@ pre {
 
 
 <h2>
-    GA4 Session ID
+    Real GA4 Session ID
 </h2>
 
 <div
@@ -700,7 +681,7 @@ pre {
 
 
 <h2>
-    Synthetic test ID
+    Synthetic Test ID
 </h2>
 
 <div
@@ -723,14 +704,6 @@ pre {
 <h2>
     GA4 Controls
 </h2>
-
-<p class="small">
-
-    The normal browser pageview is sent automatically
-    after the UTM-tagged landing URL is established.
-
-</p>
-
 
 <div class="controls">
 
@@ -756,7 +729,7 @@ pre {
 
 <button
     id="sendButton"
-    class="success"
+    class="success-button"
     onclick="sendSyntheticGA4()"
     disabled>
 
@@ -806,6 +779,7 @@ pre {
 
 </p>
 
+
 <div
     id="buttons"
     class="buttons">
@@ -824,9 +798,8 @@ pre {
     Execution Log
 </h2>
 
-<pre id="log">
-Initializing...
-</pre>
+
+<pre id="log">Initializing...</pre>
 
 </div>
 
@@ -841,6 +814,7 @@ Initializing...
     Synthetic Payload
 </h2>
 
+
 <pre id="payload">
 Waiting...
 </pre>
@@ -849,7 +823,7 @@ Waiting...
 
 
 <!-- =====================================================
-     VALIDATION RESULT
+     VALIDATION
      ===================================================== -->
 
 <div class="card">
@@ -857,6 +831,7 @@ Waiting...
 <h2>
     GA4 Validation Result
 </h2>
+
 
 <pre id="validation">
 Waiting...
@@ -868,21 +843,21 @@ Waiting...
 </div>
 
 
+
 <script>
 
+
 /*
-  Stop the application during the first document if
-  the attribution bootstrap is redirecting.
+  The first document is being redirected to the
+  UTM-tagged landing URL.
+
+  Do not initialize the application yet.
 */
 
 if (
     window.__ATTRIBUTION_REDIRECTING__
 ) {
 
-    /*
-      Navigation to the UTM URL is already in progress.
-      Do not initialize GA4/application code here.
-    */
 
 }
 else {
@@ -1111,11 +1086,13 @@ const DEVICES = [
 
 
 const device =
-    randomItem(DEVICES);
+    randomItem(
+        DEVICES
+    );
 
 
 /* =====================================================
-   HELPERS
+   HELPER
    ===================================================== */
 
 function randomItem(array) {
@@ -1138,7 +1115,7 @@ function $(id) {
 
 
 /* =====================================================
-   LOG
+   LOGGING
    ===================================================== */
 
 function log(message) {
@@ -1147,11 +1124,14 @@ function log(message) {
         new Date()
             .toLocaleTimeString();
 
+
     const box =
         $("log");
 
+
     box.textContent +=
         `[${time}] ${message}\n`;
+
 
     box.scrollTop =
         box.scrollHeight;
@@ -1166,14 +1146,16 @@ function log(message) {
 function setStatus(
     id,
     message,
-    type
+    type = ""
 ) {
 
     const element =
         $(id);
 
+
     element.textContent =
         message;
+
 
     element.className =
         `status ${type}`;
@@ -1182,10 +1164,17 @@ function setStatus(
 
 
 /* =====================================================
-   DISPLAY SOURCE
+   INITIAL DISPLAY
    ===================================================== */
 
-function displayAttribution() {
+function displayInitialProfile() {
+
+    $("device")
+        .textContent =
+        `${device.name} | ` +
+        `${device.os} ` +
+        `${device.osVersion}`;
+
 
     $("userSource")
         .textContent =
@@ -1202,21 +1191,6 @@ function displayAttribution() {
         .textContent =
         window.location.href;
 
-}
-
-
-/* =====================================================
-   DISPLAY DEVICE
-   ===================================================== */
-
-function displayDevice() {
-
-    $("device")
-        .textContent =
-        `${device.name} | ` +
-        `${device.os} ` +
-        `${device.osVersion}`;
-
 
     $("syntheticId")
         .textContent =
@@ -1226,21 +1200,20 @@ function displayDevice() {
 
 
 /* =====================================================
-   SYNTHETIC IP
+   SYNTHETIC IP GENERATOR
    ===================================================== */
 
 function generateSyntheticIP() {
 
     /*
-      Generate an address from IPv4 public-looking
-      space while avoiding common private/special ranges.
+      Generate a public-looking IPv4 address.
 
-      The IP is only a test value.
+      This is a synthetic test value.
     */
 
     for (
         let attempt = 0;
-        attempt < 50;
+        attempt < 100;
         attempt++
     ) {
 
@@ -1250,15 +1223,18 @@ function generateSyntheticIP() {
                 Math.random() * 223
             );
 
+
         const b =
             Math.floor(
                 Math.random() * 256
             );
 
+
         const c =
             Math.floor(
                 Math.random() * 256
             );
+
 
         const d =
             Math.floor(
@@ -1270,34 +1246,26 @@ function generateSyntheticIP() {
           Loopback.
         */
 
-        if (a === 127) {
-            continue;
-        }
-
-
-        /*
-          Private 10/8.
-        */
-
-        if (a === 10) {
-            continue;
-        }
-
-
-        /*
-          Link-local 169.254/16.
-        */
-
         if (
-            a === 169 &&
-            b === 254
+            a === 127
         ) {
             continue;
         }
 
 
         /*
-          Private 172.16/12.
+          10.0.0.0/8
+        */
+
+        if (
+            a === 10
+        ) {
+            continue;
+        }
+
+
+        /*
+          172.16.0.0/12
         */
 
         if (
@@ -1310,7 +1278,7 @@ function generateSyntheticIP() {
 
 
         /*
-          Private 192.168/16.
+          192.168.0.0/16
         */
 
         if (
@@ -1322,10 +1290,24 @@ function generateSyntheticIP() {
 
 
         /*
+          Link-local.
+        */
+
+        if (
+            a === 169 &&
+            b === 254
+        ) {
+            continue;
+        }
+
+
+        /*
           Multicast/reserved.
         */
 
-        if (a >= 224) {
+        if (
+            a >= 224
+        ) {
             continue;
         }
 
@@ -1336,10 +1318,6 @@ function generateSyntheticIP() {
 
     }
 
-
-    /*
-      Fallback only if generation above somehow fails.
-    */
 
     return "8.8.8.8";
 
@@ -1356,21 +1334,28 @@ async function resolveLocationFromIP(
 
     const response =
         await fetch(
-            `${IP_GEO_URL}${encodeURIComponent(ip)}`,
+            `${IP_GEO_URL}` +
+            `${encodeURIComponent(ip)}`,
             {
+
                 method:
                     "GET",
 
                 cache:
                     "no-store"
+
             }
         );
 
 
-    if (!response.ok) {
+    if (
+        !response.ok
+    ) {
 
         throw new Error(
-            `IP lookup HTTP ${response.status}`
+            `IP lookup HTTP ${
+                response.status
+            }`
         );
 
     }
@@ -1380,7 +1365,9 @@ async function resolveLocationFromIP(
         await response.json();
 
 
-    if (!data.success) {
+    if (
+        !data.success
+    ) {
 
         throw new Error(
             data.message ||
@@ -1427,7 +1414,7 @@ async function resolveLocationFromIP(
 
 
 /* =====================================================
-   CREATE SYNTHETIC LOCATION
+   SYNTHETIC LOCATION
    ===================================================== */
 
 let syntheticLocation =
@@ -1480,14 +1467,14 @@ async function createSyntheticLocation() {
 
 
     log(
-        "Starting synthetic IP generation..."
+        "Generating synthetic IP..."
     );
 
 
     /*
-      Try multiple generated IPs because an arbitrary
-      IPv4 address may not exist in the geolocation
-      provider's database.
+      Try multiple IPs because a random IPv4
+      may not have an entry in the geolocation
+      database.
     */
 
     for (
@@ -1525,7 +1512,12 @@ async function createSyntheticLocation() {
 
 
             log(
-                "IP location resolved successfully."
+                "Synthetic IP resolved successfully."
+            );
+
+
+            log(
+                `IP: ${result.ip}`
             );
 
 
@@ -1570,14 +1562,7 @@ async function createSyntheticLocation() {
             }
 
 
-            $("sendButton")
-                .disabled =
-                false;
-
-
-            $("validateButton")
-                .disabled =
-                false;
+            updateControlState();
 
 
             return;
@@ -1598,12 +1583,12 @@ async function createSyntheticLocation() {
 
     $("ip")
         .textContent =
-        "Could not resolve";
+        "Lookup failed";
 
 
     $("location")
         .textContent =
-        "Lookup failed";
+        "Could not resolve IP";
 
 
     $("region")
@@ -1622,7 +1607,7 @@ async function createSyntheticLocation() {
 
 
     log(
-        "All IP lookup attempts failed."
+        "All synthetic IP lookup attempts failed."
     );
 
 }
@@ -1637,7 +1622,9 @@ function displayLocation() {
     if (
         !syntheticLocation
     ) {
+
         return;
+
     }
 
 
@@ -1670,25 +1657,26 @@ function displayLocation() {
 
 
 /* =====================================================
-   GOOGLE TAG LOADER
+   GOOGLE TAG
    ===================================================== */
+
+let googleTagReady =
+    false;
+
 
 function loadGoogleTag() {
 
     return new Promise(
         function(resolve, reject) {
 
-            /*
-              If already loaded.
-            */
-
             if (
-                window.__GA4_LOADED__
+                googleTagReady
             ) {
 
                 resolve();
 
                 return;
+
             }
 
 
@@ -1725,8 +1713,9 @@ function loadGoogleTag() {
             script.onload =
                 function() {
 
-                    window.__GA4_LOADED__ =
+                    googleTagReady =
                         true;
+
 
                     setStatus(
                         "gaStatus",
@@ -1740,16 +1729,16 @@ function loadGoogleTag() {
                     );
 
 
-                    /*
-                      UTM parameters are already in the
-                      landing URL at this point.
-                    */
-
                     gtag(
                         "js",
                         new Date()
                     );
 
+
+                    /*
+                      The current URL already contains
+                      the randomized UTM parameters.
+                    */
 
                     gtag(
                         "config",
@@ -1757,9 +1746,8 @@ function loadGoogleTag() {
                         {
 
                             /*
-                              This is the key change:
-                              the actual landing pageview
-                              is now sent.
+                              IMPORTANT:
+                              The browser pageview is now sent.
                             */
 
                             send_page_view:
@@ -1775,6 +1763,11 @@ function loadGoogleTag() {
                                 document.title
 
                         }
+                    );
+
+
+                    log(
+                        "GA4 page_view configuration sent."
                     );
 
 
@@ -1814,7 +1807,7 @@ function loadGoogleTag() {
 
 
 /* =====================================================
-   GET REAL GA4 CLIENT ID
+   GET GA4 CLIENT ID
    ===================================================== */
 
 function getGa4ClientId() {
@@ -1822,11 +1815,53 @@ function getGa4ClientId() {
     return new Promise(
         function(resolve) {
 
+            let finished =
+                false;
+
+
+            const timeout =
+                setTimeout(
+                    function() {
+
+                        if (
+                            !finished
+                        ) {
+
+                            finished =
+                                true;
+
+                            resolve("");
+
+                        }
+
+                    },
+                    7000
+                );
+
+
             gtag(
                 "get",
                 MEASUREMENT_ID,
                 "client_id",
                 function(value) {
+
+                    if (
+                        finished
+                    ) {
+
+                        return;
+
+                    }
+
+
+                    finished =
+                        true;
+
+
+                    clearTimeout(
+                        timeout
+                    );
+
 
                     resolve(
                         value || ""
@@ -1842,7 +1877,7 @@ function getGa4ClientId() {
 
 
 /* =====================================================
-   GET REAL GA4 SESSION ID
+   GET GA4 SESSION ID
    ===================================================== */
 
 function getGa4SessionId() {
@@ -1850,11 +1885,53 @@ function getGa4SessionId() {
     return new Promise(
         function(resolve) {
 
+            let finished =
+                false;
+
+
+            const timeout =
+                setTimeout(
+                    function() {
+
+                        if (
+                            !finished
+                        ) {
+
+                            finished =
+                                true;
+
+                            resolve("");
+
+                        }
+
+                    },
+                    7000
+                );
+
+
             gtag(
                 "get",
                 MEASUREMENT_ID,
                 "session_id",
                 function(value) {
+
+                    if (
+                        finished
+                    ) {
+
+                        return;
+
+                    }
+
+
+                    finished =
+                        true;
+
+
+                    clearTimeout(
+                        timeout
+                    );
+
 
                     resolve(
                         value || ""
@@ -1870,11 +1947,12 @@ function getGa4SessionId() {
 
 
 /* =====================================================
-   GET GA4 IDS
+   REAL GA4 IDENTIFIERS
    ===================================================== */
 
 let ga4ClientId =
     "";
+
 
 let ga4SessionId =
     "";
@@ -1882,9 +1960,14 @@ let ga4SessionId =
 
 async function getGa4Identifiers() {
 
+    log(
+        "Waiting for GA4 identifiers..."
+    );
+
+
     /*
-      Give gtag a short amount of time to initialize
-      its measurement state after config().
+      Give gtag.js time to initialize its
+      measurement state.
     */
 
     await new Promise(
@@ -1892,7 +1975,7 @@ async function getGa4Identifiers() {
 
             setTimeout(
                 resolve,
-                500
+                1500
             );
 
         }
@@ -1919,46 +2002,101 @@ async function getGa4Identifiers() {
         "Unavailable";
 
 
-    log(
-        `GA4 client ID retrieved: ${
-            ga4ClientId || "Unavailable"
-        }`
-    );
-
-
-    log(
-        `GA4 session ID retrieved: ${
-            ga4SessionId || "Unavailable"
-        }`
-    );
-
-}
-
-
-/* =====================================================
-   BUILD SYNTHETIC MP PAYLOAD
-   ===================================================== */
-
-function buildPayload() {
-
     if (
-        !locationReady ||
-        !syntheticLocation
+        ga4ClientId
     ) {
 
-        throw new Error(
-            "Synthetic IP location is not ready."
+        log(
+            `GA4 Client ID: ${
+                ga4ClientId
+            }`
+        );
+
+    }
+    else {
+
+        log(
+            "ERROR: GA4 Client ID unavailable."
         );
 
     }
 
 
     if (
+        ga4SessionId
+    ) {
+
+        log(
+            `GA4 Session ID: ${
+                ga4SessionId
+            }`
+        );
+
+    }
+    else {
+
+        log(
+            "ERROR: GA4 Session ID unavailable."
+        );
+
+    }
+
+
+    updateControlState();
+
+}
+
+
+/* =====================================================
+   CONTROL STATE
+   ===================================================== */
+
+function updateControlState() {
+
+    const ready =
+        Boolean(
+            ga4ClientId &&
+            ga4SessionId &&
+            locationReady &&
+            syntheticLocation
+        );
+
+
+    $("sendButton")
+        .disabled =
+        !ready;
+
+
+    $("validateButton")
+        .disabled =
+        !ready;
+
+
+    if (
+        ready
+    ) {
+
+        log(
+            "Synthetic GA4 controls are ready."
+        );
+
+    }
+
+}
+
+
+/* =====================================================
+   BUILD SYNTHETIC PAYLOAD
+   ===================================================== */
+
+function buildPayload() {
+
+    if (
         !ga4ClientId
     ) {
 
         throw new Error(
-            "GA4 client ID is not ready."
+            "GA4 Client ID is not ready."
         );
 
     }
@@ -1969,7 +2107,18 @@ function buildPayload() {
     ) {
 
         throw new Error(
-            "GA4 session ID is not ready."
+            "GA4 Session ID is not ready."
+        );
+
+    }
+
+
+    if (
+        !syntheticLocation
+    ) {
+
+        throw new Error(
+            "Synthetic IP location is not ready."
         );
 
     }
@@ -1978,13 +2127,7 @@ function buildPayload() {
     return {
 
         /*
-          IMPORTANT:
-
-          These are the REAL web GA4 identifiers,
-          not randomly generated IDs.
-
-          This allows the MP event to be associated
-          with the online GA4 session.
+          REAL Google tag client ID.
         */
 
         client_id:
@@ -1992,6 +2135,15 @@ function buildPayload() {
                 ga4ClientId
             ),
 
+
+        /*
+          One event is added to the existing
+          web session.
+
+          The normal browser pageview already
+          established the session and its UTM
+          attribution.
+        */
 
         events: [
 
@@ -2022,14 +2174,26 @@ function buildPayload() {
                     synthetic_city:
                         syntheticLocation.city,
 
+                    synthetic_region:
+                        syntheticLocation.region,
+
                     synthetic_country:
                         syntheticLocation.country,
+
+                    synthetic_country_code:
+                        syntheticLocation.countryCode,
+
+                    synthetic_isp:
+                        syntheticLocation.isp,
 
                     synthetic_source:
                         attribution.source,
 
                     synthetic_medium:
-                        attribution.medium
+                        attribution.medium,
+
+                    synthetic_campaign:
+                        attribution.campaign
 
                 }
 
@@ -2039,13 +2203,13 @@ function buildPayload() {
 
 
         /*
-          Send the synthetic IP.
+          IMPORTANT:
 
-          We deliberately DO NOT send user_location.
+          Do NOT send user_location here.
 
-          That allows GA4 to derive geography from
-          ip_override rather than overriding it with
-          a manually supplied location.
+          GA4 will use ip_override for geographic
+          derivation for this Measurement Protocol
+          request.
         */
 
         ip_override:
@@ -2119,8 +2283,8 @@ async function testWorker() {
 
     setStatus(
         "workerStatus",
-        "● Testing Worker...",
-        "warning"
+        "● Testing Cloudflare Worker...",
+        ""
     );
 
 
@@ -2135,11 +2299,13 @@ async function testWorker() {
             await fetch(
                 WORKER_URL,
                 {
+
                     method:
                         "GET",
 
                     cache:
                         "no-store"
+
                 }
             );
 
@@ -2148,7 +2314,9 @@ async function testWorker() {
             await response.json();
 
 
-        if (!response.ok) {
+        if (
+            !response.ok
+        ) {
 
             throw new Error(
                 result.error ||
@@ -2181,7 +2349,7 @@ async function testWorker() {
 
 
         log(
-            "Worker health check succeeded."
+            "Cloudflare Worker health check succeeded."
         );
 
 
@@ -2212,7 +2380,7 @@ async function testWorker() {
 
 
 /* =====================================================
-   VALIDATE
+   VALIDATE SYNTHETIC PAYLOAD
    ===================================================== */
 
 async function validateSyntheticGA4() {
@@ -2228,10 +2396,16 @@ async function validateSyntheticGA4() {
     }
     catch (error) {
 
+        $("validation")
+            .textContent =
+            `ERROR:\n${error.message}`;
+
+
         log(
             "VALIDATION ERROR: " +
             error.message
         );
+
 
         return;
 
@@ -2249,7 +2423,7 @@ async function validateSyntheticGA4() {
 
 
     log(
-        "Sending payload to GA4 validation endpoint..."
+        "Sending synthetic payload to GA4 validation endpoint..."
     );
 
 
@@ -2293,7 +2467,9 @@ async function validateSyntheticGA4() {
             );
 
 
-        if (!response.ok) {
+        if (
+            !response.ok
+        ) {
 
             throw new Error(
                 result.error ||
@@ -2301,11 +2477,6 @@ async function validateSyntheticGA4() {
             );
 
         }
-
-
-        log(
-            "GA4 validation response received."
-        );
 
 
         const messages =
@@ -2324,7 +2495,7 @@ async function validateSyntheticGA4() {
         ) {
 
             log(
-                "No GA4 validation messages."
+                "GA4 validation returned no validation messages."
             );
 
         }
@@ -2341,6 +2512,11 @@ async function validateSyntheticGA4() {
     }
     catch (error) {
 
+        $("validation")
+            .textContent =
+            `ERROR:\n${error.message}`;
+
+
         log(
             "VALIDATION ERROR: " +
             error.message
@@ -2352,7 +2528,7 @@ async function validateSyntheticGA4() {
 
 
 /* =====================================================
-   SEND SYNTHETIC GA4 EVENT
+   SEND SYNTHETIC GA4
    ===================================================== */
 
 async function sendSyntheticGA4() {
@@ -2368,10 +2544,16 @@ async function sendSyntheticGA4() {
     }
     catch (error) {
 
+        $("payload")
+            .textContent =
+            `ERROR:\n${error.message}`;
+
+
         log(
             "SEND ERROR: " +
             error.message
         );
+
 
         return;
 
@@ -2418,7 +2600,9 @@ async function sendSyntheticGA4() {
             await response.json();
 
 
-        if (!response.ok) {
+        if (
+            !response.ok
+        ) {
 
             throw new Error(
                 result.error ||
@@ -2441,13 +2625,24 @@ async function sendSyntheticGA4() {
 
 
         log(
-            `Session source/medium used by landing page: ${
+            `Synthetic source/medium: ${
                 attribution.source
             } / ${
                 attribution.medium
             }`
         );
 
+
+        log(
+            `Synthetic IP: ${
+                syntheticLocation.ip
+            }`
+        );
+
+
+        log(
+            "Synthetic profile submitted to GA4."
+        );
 
     }
     catch (error) {
@@ -2478,10 +2673,10 @@ function sendNormalGA4Event() {
                 synthetic_test:
                     "1",
 
-                source:
+                synthetic_source:
                     attribution.source,
 
-                medium:
+                synthetic_medium:
                     attribution.medium,
 
                 debug_mode:
@@ -2514,7 +2709,7 @@ function sendNormalGA4Event() {
 
 function randomizeSource() {
 
-    const SOURCES = [
+    const sources = [
 
         {
             source:
@@ -2569,7 +2764,7 @@ function randomizeSource() {
 
     const selected =
         randomItem(
-            SOURCES
+            sources
         );
 
 
@@ -2609,14 +2804,20 @@ function randomizeSource() {
     );
 
 
-    /*
-      Reload so the Google tag sees the selected UTM
-      values on the page load.
+    log(
+        `Randomizing source to ${
+            selected.source
+        } / ${
+            selected.medium
+        }`
+    );
 
-      IMPORTANT:
-      For a genuinely new GA4 session, use a new
-      incognito window/browser or test after the current
-      session has ended.
+
+    /*
+      Full navigation is intentional.
+
+      The new UTM URL needs to be the actual landing
+      URL seen by the next GA4 pageview.
     */
 
     window.location.href =
@@ -2670,6 +2871,9 @@ for (
 
                         synthetic_test:
                             "1",
+
+                        synthetic_test_id:
+                            syntheticId,
 
                         debug_mode:
                             true
@@ -2728,7 +2932,7 @@ setInterval(
 
 
 /* =====================================================
-   JAVASCRIPT ERROR HANDLING
+   GLOBAL ERROR LOGGING
    ===================================================== */
 
 window.addEventListener(
@@ -2760,12 +2964,35 @@ window.addEventListener(
 
 
 /* =====================================================
-   INITIALIZE
+   EXPOSE BUTTON FUNCTIONS
+   =====================================================
+
+   Your HTML uses inline onclick attributes.
+   Explicitly expose the functions on window so those
+   handlers can always find them.
    ===================================================== */
 
-displayDevice();
+window.testWorker =
+    testWorker;
 
-displayAttribution();
+window.validateSyntheticGA4 =
+    validateSyntheticGA4;
+
+window.sendSyntheticGA4 =
+    sendSyntheticGA4;
+
+window.sendNormalGA4Event =
+    sendNormalGA4Event;
+
+window.randomizeSource =
+    randomizeSource;
+
+
+/* =====================================================
+   INITIALIZATION
+   ===================================================== */
+
+displayInitialProfile();
 
 
 log(
@@ -2781,7 +3008,7 @@ log(
 
 
 log(
-    `Synthetic test ID: ${
+    `Synthetic Test ID: ${
         syntheticId
     }`
 );
@@ -2810,24 +3037,30 @@ log(
 );
 
 
+log(
+    "Loading Google tag..."
+);
+
+
 /*
-  Load GA4 AFTER the UTM URL has been established.
+  1. Load Google tag.
+  2. Send actual landing pageview.
+  3. Retrieve REAL client/session IDs.
+  4. Generate synthetic IP.
 */
 
 loadGoogleTag()
+
     .then(
         async function() {
 
             await getGa4Identifiers();
 
-            /*
-              Generate IP and resolve its location.
-            */
-
             await createSyntheticLocation();
 
         }
     )
+
     .catch(
         function(error) {
 
@@ -2841,30 +3074,10 @@ loadGoogleTag()
 
 
 /*
-  Test Worker automatically.
+  Worker health check.
 */
 
 testWorker();
-
-      // =====================================================
-// EXPOSE BUTTON FUNCTIONS TO HTML
-// =====================================================
-
-window.testWorker =
-    testWorker;
-
-window.validateSyntheticGA4 =
-    validateSyntheticGA4;
-
-window.sendSyntheticGA4 =
-    sendSyntheticGA4;
-
-window.sendNormalGA4Event =
-    sendNormalGA4Event;
-
-window.randomizeSource =
-    randomizeSource;
-
 
 
 }
