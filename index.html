@@ -12,7 +12,182 @@
 
 
 <!-- =====================================================
-     NORMAL GOOGLE GA4 TAG
+     RANDOM SYNTHETIC ATTRIBUTION
+     This runs BEFORE the Google tag configuration so
+     the current URL already contains UTM parameters.
+     ===================================================== -->
+
+<script>
+
+const SYNTHETIC_ATTRIBUTIONS = [
+
+    {
+        source: "google",
+        medium: "organic"
+    },
+
+    {
+        source: "bing",
+        medium: "organic"
+    },
+
+    {
+        source: "duckduckgo",
+        medium: "organic"
+    },
+
+    {
+        source: "yahoo",
+        medium: "organic"
+    },
+
+    {
+        source: "baidu",
+        medium: "organic"
+    },
+
+    {
+        source: "ecosia",
+        medium: "organic"
+    },
+
+    {
+        source: "yandex",
+        medium: "organic"
+    },
+
+    {
+        source: "facebook",
+        medium: "social"
+    },
+
+    {
+        source: "instagram",
+        medium: "social"
+    },
+
+    {
+        source: "reddit",
+        medium: "social"
+    },
+
+    {
+        source: "linkedin",
+        medium: "social"
+    },
+
+    {
+        source: "youtube",
+        medium: "video"
+    },
+
+    {
+        source: "newsletter",
+        medium: "email"
+    },
+
+    {
+        source: "example.com",
+        medium: "referral"
+    }
+
+];
+
+
+function randomAttribution() {
+
+    return SYNTHETIC_ATTRIBUTIONS[
+        Math.floor(
+            Math.random() *
+            SYNTHETIC_ATTRIBUTIONS.length
+        )
+    ];
+
+}
+
+
+const selectedAttribution =
+    randomAttribution();
+
+
+/*
+  Put the randomized source/medium into the
+  current URL as UTM parameters.
+
+  This is important for web GA4 traffic-source
+  testing.
+*/
+
+try {
+
+    const url =
+        new URL(window.location.href);
+
+
+    url.searchParams.set(
+        "utm_source",
+        selectedAttribution.source
+    );
+
+
+    url.searchParams.set(
+        "utm_medium",
+        selectedAttribution.medium
+    );
+
+
+    url.searchParams.set(
+        "utm_campaign",
+        "synthetic_ga4_test"
+    );
+
+
+    url.searchParams.set(
+        "utm_content",
+        "synthetic_traffic"
+    );
+
+
+    /*
+      Marker used only by our test page.
+    */
+
+    url.searchParams.set(
+        "synthetic_test",
+        "1"
+    );
+
+
+    window.history.replaceState(
+        {},
+        "",
+        url.toString()
+    );
+
+}
+catch (error) {
+
+    console.warn(
+        "Unable to update UTM URL:",
+        error
+    );
+
+}
+
+
+/*
+  Make the selected attribution available
+  to the rest of the page.
+*/
+
+window.SYNTHETIC_ATTRIBUTION =
+    selectedAttribution;
+
+</script>
+
+
+<!-- =====================================================
+     GOOGLE GA4 TAG
      ===================================================== -->
 
 <script async
@@ -24,25 +199,37 @@
 window.dataLayer =
     window.dataLayer || [];
 
+
 function gtag() {
-    dataLayer.push(arguments);
+
+    dataLayer.push(
+        arguments
+    );
+
 }
 
-gtag("js", new Date());
+
+gtag(
+    "js",
+    new Date()
+);
+
 
 /*
-  Automatic pageview is disabled.
+  Automatic pageview remains OFF.
 
-  This prevents the real browser/device/location from
-  automatically creating a GA4 pageview when the page opens.
+  This prevents your real browser from automatically
+  creating a normal GA4 pageview just by opening this page.
 */
-gtag("config", "G-W60ZSDKWTS", {
 
-    send_page_view: false,
-
-    debug_mode: true
-
-});
+gtag(
+    "config",
+    "G-W60ZSDKWTS",
+    {
+        send_page_view: false,
+        debug_mode: true
+    }
+);
 
 </script>
 
@@ -181,7 +368,7 @@ button {
         #1e293b;
 
     color:
-        white;
+        #ffffff;
 
     padding:
         13px;
@@ -205,7 +392,7 @@ button:hover {
 button:disabled {
 
     opacity:
-        .5;
+        .45;
 
     cursor:
         not-allowed;
@@ -235,13 +422,6 @@ button:disabled {
         none;
 }
 
-.test-button {
-
-    background:
-        #374151;
-
-}
-
 .buttons {
 
     display:
@@ -249,6 +429,18 @@ button:disabled {
 
     grid-template-columns:
         repeat(5, 1fr);
+
+    gap:
+        10px;
+}
+
+.controls {
+
+    display:
+        flex;
+
+    flex-wrap:
+        wrap;
 
     gap:
         10px;
@@ -290,18 +482,6 @@ pre {
         13px;
 }
 
-.control-row {
-
-    display:
-        flex;
-
-    gap:
-        10px;
-
-    flex-wrap:
-        wrap;
-}
-
 @media(max-width:600px) {
 
     .container {
@@ -319,8 +499,9 @@ pre {
     button {
 
         padding:
-            11px 6px;
+            11px 7px;
     }
+
 }
 
 </style>
@@ -344,6 +525,7 @@ pre {
     GA4 Synthetic Traffic Test
 </h1>
 
+
 <div
     id="gaStatus"
     class="status warning">
@@ -351,6 +533,7 @@ pre {
     ● Initializing Google tag...
 
 </div>
+
 
 <div
     id="workerStatus"
@@ -360,13 +543,12 @@ pre {
 
 </div>
 
+
 <p>
 
-    This page does not automatically send a normal
-    browser pageview.
-
-    The synthetic event is sent separately through
-    the Cloudflare Worker.
+    Synthetic device, IP, location and traffic-source
+    information are generated independently from the
+    physical browser.
 
 </p>
 
@@ -396,7 +578,7 @@ pre {
 
 
 <!-- =====================================================
-     SYNTHETIC PROFILE
+     DEVICE / LOCATION
      ===================================================== -->
 
 <div class="card">
@@ -478,16 +660,51 @@ pre {
 
 </div>
 
+</div>
+
+
+<!-- =====================================================
+     TRAFFIC SOURCE
+     ===================================================== -->
+
+<div class="card">
 
 <h2>
-    Synthetic attribution
+    User source / medium
 </h2>
 
 <div
-    id="attribution"
+    id="userSource"
     class="value">
 
     Generating...
+
+</div>
+
+
+<h2>
+    Campaign
+</h2>
+
+<div
+    id="campaign"
+    class="value">
+
+    synthetic_ga4_test
+
+</div>
+
+
+<h2>
+    Current URL
+</h2>
+
+<div
+    id="currentUrl"
+    class="value"
+    style="font-size:14px">
+
+    Loading...
 
 </div>
 
@@ -495,7 +712,7 @@ pre {
 
 
 <!-- =====================================================
-     IDENTIFIERS
+     IDS
      ===================================================== -->
 
 <div class="card">
@@ -538,19 +755,19 @@ pre {
     GA4 Controls
 </h2>
 
+
 <p class="small">
 
-    First wait for the synthetic IP location to resolve.
+    The source/medium is randomized when the page loads
+    and is also written to UTM parameters in the URL.
 
 </p>
 
 
-<div class="control-row">
+<div class="controls">
 
 
 <button
-    class="test-button"
-    id="workerButton"
     onclick="testWorker()">
 
     Test Worker
@@ -559,8 +776,8 @@ pre {
 
 
 <button
-    class="primary"
     id="validateButton"
+    class="primary"
     onclick="validateSyntheticGA4()"
     disabled>
 
@@ -570,12 +787,28 @@ pre {
 
 
 <button
-    class="success"
     id="sendButton"
+    class="success"
     onclick="sendSyntheticGA4()"
     disabled>
 
     Send Synthetic GA4 Event
+
+</button>
+
+
+<button
+    onclick="sendBrowserAttributionPageview()">
+
+    Send Browser Attribution Pageview
+
+</button>
+
+
+<button
+    onclick="randomizeSource()">
+
+    Randomize Source Again
 
 </button>
 
@@ -621,7 +854,7 @@ pre {
 
 
 <!-- =====================================================
-     EXECUTION LOG
+     LOG
      ===================================================== -->
 
 <div class="card">
@@ -638,7 +871,7 @@ Initializing...
 
 
 <!-- =====================================================
-     PAYLOAD PREVIEW
+     PAYLOAD
      ===================================================== -->
 
 <div class="card">
@@ -655,7 +888,7 @@ Waiting for synthetic location...
 
 
 <!-- =====================================================
-     GA4 VALIDATION RESULT
+     VALIDATION
      ===================================================== -->
 
 <div class="card">
@@ -688,15 +921,20 @@ const WORKER_URL =
     "https://mytestworker.test836mail-76c.workers.dev/";
 
 
-/*
-  IP geolocation service.
-
-  The page first creates a synthetic IP and then asks
-  this service for the location associated with that IP.
-*/
-
 const IP_GEO_URL =
     "https://ipwho.is/";
+
+
+const CAMPAIGN =
+    "synthetic_ga4_test";
+
+
+/*
+  Attribution was randomized in <head>.
+*/
+
+let attribution =
+    window.SYNTHETIC_ATTRIBUTION;
 
 
 /* =====================================================
@@ -872,147 +1110,8 @@ const DEVICES = [
 ];
 
 
-/* =====================================================
-   ATTRIBUTION PROFILES
-   ===================================================== */
-
-const ATTRIBUTIONS = [
-
-    {
-        source:
-            "google",
-
-        medium:
-            "organic"
-    },
-
-
-    {
-        source:
-            "bing",
-
-        medium:
-            "organic"
-    },
-
-
-    {
-        source:
-            "duckduckgo",
-
-        medium:
-            "organic"
-    }
-
-];
-
-
-/* =====================================================
-   RANDOM HELPERS
-   ===================================================== */
-
-function randomItem(array) {
-
-    return array[
-        Math.floor(
-            Math.random() *
-            array.length
-        )
-    ];
-}
-
-
-/* =====================================================
-   SYNTHETIC IP GENERATOR
-   ===================================================== */
-
-function generateSyntheticIP() {
-
-    /*
-      These are first-octet values from ordinary
-      public IPv4 space.
-
-      The result is only a synthetic test value.
-    */
-
-    const firstOctets = [
-
-        8, 11, 13, 14, 18,
-        20, 23, 31, 34, 35,
-        44, 45, 46, 47, 49,
-        52, 54, 57, 63, 64,
-        65, 66, 67, 68, 69,
-        70, 72, 73, 74, 76,
-        77, 78, 79, 80, 81,
-        82, 83, 84, 85, 86,
-        87, 88, 89, 90, 91,
-        92, 93, 94, 95,
-        101, 102, 103, 104,
-        105, 106, 107, 108,
-        109, 110, 111, 112,
-        113, 114, 115, 116,
-        117, 118, 119, 120,
-        121, 122, 123, 124,
-        125,
-
-        128, 129, 130, 131,
-        132, 133, 134, 135,
-        136, 137, 138, 139,
-        140, 141, 142, 143,
-        144, 145, 146, 147,
-        148, 149, 150, 151,
-        152, 153, 154, 155,
-        156, 157, 158, 159,
-        160, 161, 162, 163,
-        164, 165, 166, 167,
-        168, 169, 170, 171,
-        172, 173, 174, 175,
-        176, 177, 178, 179,
-        180, 181, 182, 183,
-        184, 185, 186, 187,
-        188, 189, 190, 191,
-        192, 193, 194, 195,
-        196, 197, 198, 199,
-        200, 201, 202, 203,
-        204, 205, 206, 207,
-        208, 209, 210, 211,
-        212, 213, 214, 215,
-        216, 217, 218, 219,
-        220, 221, 222, 223,
-        224, 225, 226, 227,
-        228, 229, 230, 231,
-        232, 233, 234, 235,
-        236, 237, 238, 239
-
-    ];
-
-
-    const first =
-        randomItem(firstOctets);
-
-
-    const second =
-        Math.floor(
-            Math.random() * 256
-        );
-
-
-    const third =
-        Math.floor(
-            Math.random() * 256
-        );
-
-
-    const fourth =
-        Math.floor(
-            Math.random() * 256
-        );
-
-
-    return (
-        `${first}.${second}.${third}.${fourth}`
-    );
-}
+const device =
+    randomItem(DEVICES);
 
 
 /* =====================================================
@@ -1022,7 +1121,8 @@ function generateSyntheticIP() {
 const clientId =
     `${Math.floor(Date.now() / 1000)}.` +
     `${Math.floor(
-        Math.random() * 2147483647
+        Math.random() *
+        2147483647
     )}`;
 
 
@@ -1035,48 +1135,39 @@ const sessionId =
 
 
 /* =====================================================
-   SELECT DEVICE / ATTRIBUTION
+   SYNTHETIC LOCATION
    ===================================================== */
-
-const device =
-    randomItem(DEVICES);
-
-
-const attribution =
-    randomItem(ATTRIBUTIONS);
-
-
-/*
-  This will be filled only after the synthetic IP
-  has been resolved.
-*/
 
 let syntheticLocation =
     null;
 
-
-/*
-  Used to prevent sending before location
-  resolution has completed.
-*/
 
 let locationReady =
     false;
 
 
 /* =====================================================
-   DOM HELPER
+   HELPERS
    ===================================================== */
+
+function randomItem(array) {
+
+    return array[
+        Math.floor(
+            Math.random() *
+            array.length
+        )
+    ];
+
+}
+
 
 function $(id) {
 
     return document.getElementById(id);
+
 }
 
-
-/* =====================================================
-   LOGGING
-   ===================================================== */
 
 function log(message) {
 
@@ -1092,12 +1183,9 @@ function log(message) {
 
     box.scrollTop =
         box.scrollHeight;
+
 }
 
-
-/* =====================================================
-   STATUS HELPER
-   ===================================================== */
 
 function setStatus(
     elementId,
@@ -1113,6 +1201,31 @@ function setStatus(
 
     element.className =
         `status ${type}`;
+
+}
+
+
+/* =====================================================
+   DISPLAY ATTRIBUTION
+   ===================================================== */
+
+function displayAttribution() {
+
+    $("userSource")
+        .textContent =
+        `${attribution.source} / ` +
+        `${attribution.medium}`;
+
+
+    $("campaign")
+        .textContent =
+        CAMPAIGN;
+
+
+    $("currentUrl")
+        .textContent =
+        window.location.href;
+
 }
 
 
@@ -1129,7 +1242,19 @@ function displayProfile() {
         `${device.osVersion}`;
 
 
-    if (syntheticLocation) {
+    $("clientId")
+        .textContent =
+        clientId;
+
+
+    $("sessionId")
+        .textContent =
+        sessionId;
+
+
+    if (
+        syntheticLocation
+    ) {
 
         $("ip")
             .textContent =
@@ -1162,27 +1287,91 @@ function displayProfile() {
     }
 
 
-    $("attribution")
-        .textContent =
-        `${attribution.medium === "organic"
-            ? "Organic Search"
-            : attribution.medium} ` +
-        `(${attribution.source})`;
+    displayAttribution();
 
-
-    $("clientId")
-        .textContent =
-        clientId;
-
-
-    $("sessionId")
-        .textContent =
-        sessionId;
 }
 
 
 /* =====================================================
-   RESOLVE LOCATION FROM SYNTHETIC IP
+   SYNTHETIC IP
+   ===================================================== */
+
+function generateSyntheticIP() {
+
+    const firstOctets = [
+
+        8, 11, 13, 14, 18,
+        20, 23, 31, 34, 35,
+        44, 45, 46, 47, 49,
+        52, 54, 57, 63, 64,
+        65, 66, 67, 68, 69,
+        70, 72, 73, 74, 76,
+        77, 78, 79, 80, 81,
+        82, 83, 84, 85, 86,
+        87, 88, 89, 90, 91,
+        92, 93, 94, 95,
+        101, 102, 103, 104,
+        105, 106, 107, 108,
+        109, 110, 111, 112,
+        113, 114, 115, 116,
+        117, 118, 119, 120,
+        121, 122, 123, 124,
+        125,
+        128, 129, 130, 131,
+        132, 133, 134, 135,
+        136, 137, 138, 139,
+        140, 141, 142, 143,
+        144, 145, 146, 147,
+        148, 149, 150, 151,
+        152, 153, 154, 155,
+        156, 157, 158, 159,
+        160, 161, 162, 163,
+        164, 165, 166, 167,
+        168, 169, 170, 171,
+        172, 173, 174, 175,
+        176, 177, 178, 179,
+        180, 181, 182, 183,
+        184, 185, 186, 187,
+        188, 189, 190, 191,
+        192, 193, 194, 195,
+        196, 197, 198, 199,
+        200, 201, 202, 203,
+        204, 205, 206, 207,
+        208, 209, 210, 211,
+        212, 213, 214, 215,
+        216, 217, 218, 219,
+        220, 221, 222, 223,
+        224, 225, 226, 227,
+        228, 229, 230, 231,
+        232, 233, 234, 235,
+        236, 237, 238, 239
+
+    ];
+
+
+    return (
+
+        `${randomItem(firstOctets)}.` +
+
+        `${Math.floor(
+            Math.random() * 256
+        )}.` +
+
+        `${Math.floor(
+            Math.random() * 256
+        )}.` +
+
+        `${Math.floor(
+            Math.random() * 256
+        )}`
+
+    );
+
+}
+
+
+/* =====================================================
+   IP GEOLOCATION
    ===================================================== */
 
 async function resolveLocationFromIP(
@@ -1191,7 +1380,8 @@ async function resolveLocationFromIP(
 
     const response =
         await fetch(
-            `${IP_GEO_URL}${encodeURIComponent(ip)}`,
+            `${IP_GEO_URL}` +
+            `${encodeURIComponent(ip)}`,
             {
                 method:
                     "GET",
@@ -1207,6 +1397,7 @@ async function resolveLocationFromIP(
         throw new Error(
             `IP lookup HTTP ${response.status}`
         );
+
     }
 
 
@@ -1220,6 +1411,7 @@ async function resolveLocationFromIP(
             data.message ||
             "IP geolocation failed"
         );
+
     }
 
 
@@ -1244,26 +1436,23 @@ async function resolveLocationFromIP(
             data.country_code ||
             "",
 
-        continent:
-            data.continent ||
-            "",
+        isp:
+            data.connection?.isp ||
+            "Unknown",
 
         latitude:
             data.latitude,
 
         longitude:
-            data.longitude,
-
-        isp:
-            data.connection?.isp ||
-            "Unknown"
+            data.longitude
 
     };
+
 }
 
 
 /* =====================================================
-   CREATE IP → LOCATION
+   CREATE SYNTHETIC IP + LOCATION
    ===================================================== */
 
 async function createSyntheticLocation() {
@@ -1312,12 +1501,6 @@ async function createSyntheticLocation() {
     );
 
 
-    /*
-      Try multiple IPs because an arbitrary
-      synthetic IPv4 address may not be present
-      in the geolocation provider's database.
-    */
-
     for (
         let attempt = 1;
         attempt <= 5;
@@ -1353,7 +1536,7 @@ async function createSyntheticLocation() {
 
 
             log(
-                `Location resolved from IP: ` +
+                "Location resolved from IP: " +
                 `${resolved.city}, ` +
                 `${resolved.region}, ` +
                 `${resolved.country}`
@@ -1361,21 +1544,16 @@ async function createSyntheticLocation() {
 
 
             log(
-                `Country code: ` +
-                `${resolved.countryCode}`
+                `Country code: ${
+                    resolved.countryCode
+                }`
             );
 
 
             log(
-                `ISP: ` +
-                `${resolved.isp}`
-            );
-
-
-            log(
-                `Coordinates: ` +
-                `${resolved.latitude}, ` +
-                `${resolved.longitude}`
+                `ISP: ${
+                    resolved.isp
+                }`
             );
 
 
@@ -1392,23 +1570,16 @@ async function createSyntheticLocation() {
             return;
 
         }
-
         catch (error) {
 
             log(
                 `IP lookup failed: ` +
                 `${error.message}`
             );
+
         }
+
     }
-
-
-    syntheticLocation =
-        null;
-
-
-    locationReady =
-        false;
 
 
     $("ip")
@@ -1437,23 +1608,27 @@ async function createSyntheticLocation() {
 
 
     log(
-        "Unable to resolve a synthetic IP after 5 attempts."
+        "Unable to resolve synthetic IP."
     );
+
 }
 
 
 /* =====================================================
-   BUILD SYNTHETIC PAYLOAD
+   BUILD PAYLOAD
    ===================================================== */
 
 function buildPayload() {
 
-    if (!locationReady ||
-        !syntheticLocation) {
+    if (
+        !locationReady ||
+        !syntheticLocation
+    ) {
 
         throw new Error(
-            "Synthetic IP location is not ready yet."
+            "Synthetic IP location is not ready."
         );
+
     }
 
 
@@ -1465,28 +1640,21 @@ function buildPayload() {
         session_id:
             sessionId,
 
-        /*
-          Same synthetic IP that was resolved
-          above.
-        */
 
         ip_override:
             syntheticLocation.ip,
 
 
-        /*
-          We include the location returned
-          by the IP lookup.
-
-          This makes the test payload explicit
-          and lets us compare the API lookup
-          against GA4's received values.
-        */
-
         user_location: {
 
             city:
                 syntheticLocation.city,
+
+            region_id:
+                convertRegionToGa4(
+                    syntheticLocation.region,
+                    syntheticLocation.countryCode
+                ),
 
             country_id:
                 syntheticLocation.countryCode
@@ -1533,7 +1701,7 @@ function buildPayload() {
             attribution.medium,
 
         campaign:
-            "synthetic_ga4_test",
+            CAMPAIGN,
 
         campaign_id:
             "synthetic_" +
@@ -1546,6 +1714,50 @@ function buildPayload() {
             document.title
 
     };
+
+}
+
+
+/* =====================================================
+   REGION CONVERSION
+   ===================================================== */
+
+function convertRegionToGa4(
+    region,
+    countryCode
+) {
+
+    if (
+        !region ||
+        !countryCode
+    ) {
+
+        return undefined;
+
+    }
+
+
+    /*
+      ipwho.is may return a region name rather
+      than an ISO subdivision.
+
+      Only return it if it already looks like
+      a GA4 ISO-style region code.
+    */
+
+    if (
+        /^[A-Z]{2}-[A-Z0-9-]+$/i.test(
+            region
+        )
+    ) {
+
+        return region.toUpperCase();
+
+    }
+
+
+    return undefined;
+
 }
 
 
@@ -1564,18 +1776,19 @@ function showPayload(
             null,
             2
         );
+
 }
 
 
 /* =====================================================
-   TEST CLOUDFLARE WORKER
+   TEST WORKER
    ===================================================== */
 
 async function testWorker() {
 
     setStatus(
         "workerStatus",
-        "● Testing Cloudflare Worker...",
+        "● Testing Worker...",
         "warning"
     );
 
@@ -1610,6 +1823,7 @@ async function testWorker() {
                 result.error ||
                 `HTTP ${response.status}`
             );
+
         }
 
 
@@ -1623,13 +1837,15 @@ async function testWorker() {
                 "success"
             );
 
-        } else {
+        }
+        else {
 
             setStatus(
                 "workerStatus",
                 "● Worker online — GA4 secret missing",
                 "error"
             );
+
         }
 
 
@@ -1643,7 +1859,6 @@ async function testWorker() {
                 result.measurement_id
             }`
         );
-
 
     }
     catch (error) {
@@ -1659,12 +1874,14 @@ async function testWorker() {
             "WORKER ERROR: " +
             error.message
         );
+
     }
+
 }
 
 
 /* =====================================================
-   VALIDATE SYNTHETIC PAYLOAD
+   VALIDATE
    ===================================================== */
 
 async function validateSyntheticGA4() {
@@ -1686,19 +1903,22 @@ async function validateSyntheticGA4() {
         );
 
         return;
+
     }
 
 
-    showPayload(payload);
+    showPayload(
+        payload
+    );
 
 
     $("validation")
         .textContent =
-        "Sending payload to GA4 validation endpoint...";
+        "Validating...";
 
 
     log(
-        "Validating synthetic Measurement Protocol payload..."
+        "Sending synthetic payload to GA4 validation endpoint..."
     );
 
 
@@ -1717,12 +1937,14 @@ async function validateSyntheticGA4() {
 
                         "Content-Type":
                             "application/json"
+
                     },
 
                     body:
                         JSON.stringify(
                             payload
                         )
+
                 }
             );
 
@@ -1746,6 +1968,7 @@ async function validateSyntheticGA4() {
                 result.error ||
                 `HTTP ${response.status}`
             );
+
         }
 
 
@@ -1757,7 +1980,8 @@ async function validateSyntheticGA4() {
         if (
             result.validation &&
             Array.isArray(
-                result.validation.validationMessages
+                result.validation
+                    .validationMessages
             )
         ) {
 
@@ -1766,22 +1990,13 @@ async function validateSyntheticGA4() {
                     .validationMessages;
 
 
-            if (
+            log(
                 messages.length === 0
-            ) {
-
-                log(
-                    "GA4 validation returned no validation messages."
-                );
-
-            } else {
-
-                log(
-                    `GA4 returned ${
+                    ? "No GA4 validation messages."
+                    : `GA4 returned ${
                         messages.length
                     } validation message(s).`
-                );
-            }
+            );
 
         }
 
@@ -1792,12 +2007,14 @@ async function validateSyntheticGA4() {
             "VALIDATION ERROR: " +
             error.message
         );
+
     }
+
 }
 
 
 /* =====================================================
-   SEND SYNTHETIC GA4 EVENT
+   SEND SYNTHETIC EVENT
    ===================================================== */
 
 async function sendSyntheticGA4() {
@@ -1819,10 +2036,13 @@ async function sendSyntheticGA4() {
         );
 
         return;
+
     }
 
 
-    showPayload(payload);
+    showPayload(
+        payload
+    );
 
 
     log(
@@ -1844,12 +2064,14 @@ async function sendSyntheticGA4() {
 
                         "Content-Type":
                             "application/json"
+
                     },
 
                     body:
                         JSON.stringify(
                             payload
                         )
+
                 }
             );
 
@@ -1864,6 +2086,7 @@ async function sendSyntheticGA4() {
                 result.error ||
                 `HTTP ${response.status}`
             );
+
         }
 
 
@@ -1880,23 +2103,93 @@ async function sendSyntheticGA4() {
 
 
         log(
+            `Source / medium sent: ${
+                attribution.source
+            } / ${
+                attribution.medium
+            }`
+        );
+
+
+        log(
             "Synthetic profile submitted to GA4."
         );
 
     }
-
     catch (error) {
 
         log(
             "SYNTHETIC GA4 ERROR: " +
             error.message
         );
+
     }
+
 }
 
 
 /* =====================================================
-   NORMAL BROWSER GA4 EVENT
+   BROWSER ATTRIBUTION PAGEVIEW
+   ===================================================== */
+
+function sendBrowserAttributionPageview() {
+
+    /*
+      This sends an actual web-tagged event using the
+      randomized UTM parameters already in the URL.
+
+      It is separate from the synthetic Measurement
+      Protocol event.
+    */
+
+    try {
+
+        gtag(
+            "event",
+            "page_view",
+            {
+
+                page_title:
+                    document.title,
+
+                page_location:
+                    window.location.href,
+
+                debug_mode:
+                    true
+
+            }
+        );
+
+
+        log(
+            "Browser attribution pageview sent."
+        );
+
+
+        log(
+            `Browser source / medium: ${
+                attribution.source
+            } / ${
+                attribution.medium
+            }`
+        );
+
+    }
+    catch (error) {
+
+        log(
+            "BROWSER PAGEVIEW ERROR: " +
+            error.message
+        );
+
+    }
+
+}
+
+
+/* =====================================================
+   NORMAL GA4 EVENT
    ===================================================== */
 
 function sendNormalGA4Event() {
@@ -1932,14 +2225,88 @@ function sendNormalGA4Event() {
         );
 
     }
-
     catch (error) {
 
         log(
             "NORMAL GA4 ERROR: " +
             error.message
         );
+
     }
+
+}
+
+
+/* =====================================================
+   RANDOMIZE SOURCE AGAIN
+   ===================================================== */
+
+function randomizeSource() {
+
+    const next =
+        randomItem(
+            SYNTHETIC_ATTRIBUTIONS
+        );
+
+
+    attribution =
+        next;
+
+
+    const url =
+        new URL(
+            window.location.href
+        );
+
+
+    url.searchParams.set(
+        "utm_source",
+        attribution.source
+    );
+
+
+    url.searchParams.set(
+        "utm_medium",
+        attribution.medium
+    );
+
+
+    url.searchParams.set(
+        "utm_campaign",
+        CAMPAIGN
+    );
+
+
+    url.searchParams.set(
+        "utm_content",
+        "synthetic_traffic"
+    );
+
+
+    url.searchParams.set(
+        "synthetic_test",
+        "1"
+    );
+
+
+    window.history.replaceState(
+        {},
+        "",
+        url.toString()
+    );
+
+
+    displayAttribution();
+
+
+    log(
+        `Source randomized: ${
+            attribution.source
+        } / ${
+            attribution.medium
+        }`
+    );
+
 }
 
 
@@ -2001,13 +2368,13 @@ for (
                 );
 
             }
-
             catch (error) {
 
                 log(
                     "Button GA4 error: " +
                     error.message
                 );
+
             }
 
         }
@@ -2018,6 +2385,7 @@ for (
         .appendChild(
             button
         );
+
 }
 
 
@@ -2045,7 +2413,7 @@ setInterval(
 
 
 /* =====================================================
-   GOOGLE TAG LOAD STATUS
+   GOOGLE TAG STATUS
    ===================================================== */
 
 function setupGoogleTagStatus() {
@@ -2065,6 +2433,7 @@ function setupGoogleTagStatus() {
         );
 
         return;
+
     }
 
 
@@ -2082,6 +2451,7 @@ function setupGoogleTagStatus() {
             log(
                 "Google tag script loaded."
             );
+
         }
     );
 
@@ -2098,8 +2468,9 @@ function setupGoogleTagStatus() {
 
 
             log(
-                "Google tag script failed to load."
+                "Google tag failed to load."
             );
+
         }
     );
 
@@ -2116,16 +2487,18 @@ function setupGoogleTagStatus() {
                     "● Google tag loaded successfully",
                     "success"
                 );
+
             }
 
         },
         1500
     );
+
 }
 
 
 /* =====================================================
-   GLOBAL ERROR HANDLING
+   GLOBAL ERROR LOGGING
    ===================================================== */
 
 window.addEventListener(
@@ -2136,6 +2509,7 @@ window.addEventListener(
             "JAVASCRIPT ERROR: " +
             event.message
         );
+
     }
 );
 
@@ -2146,8 +2520,11 @@ window.addEventListener(
 
         log(
             "PROMISE ERROR: " +
-            String(event.reason)
+            String(
+                event.reason
+            )
         );
+
     }
 );
 
@@ -2157,7 +2534,6 @@ window.addEventListener(
    ===================================================== */
 
 displayProfile();
-
 
 setupGoogleTagStatus();
 
@@ -2196,7 +2572,7 @@ log(
 
 
 log(
-    `Synthetic attribution: ${
+    `Random source / medium: ${
         attribution.source
     } / ${
         attribution.medium
@@ -2205,18 +2581,12 @@ log(
 
 
 log(
-    "Generating synthetic IP and resolving location..."
+    "Synthetic IP → location resolution starting..."
 );
 
 
 /*
-  Start:
-
-  Synthetic IP
-       ↓
-  IP geolocation
-       ↓
-  Synthetic profile ready
+  Generate synthetic IP and resolve its location.
 */
 
 createSyntheticLocation();
