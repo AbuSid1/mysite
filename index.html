@@ -200,6 +200,68 @@ pre {
 .kv span:first-child { color: #94a3b8; }
 .kv span:last-child { color: #e2e8f0; text-align: right; }
 
+/* =========================================================
+   AD TESTING UI
+   ========================================================= */
+.ad-mode-box {
+    background: #0f1b2e;
+    border: 1px solid #334155;
+    border-radius: 14px;
+    padding: 16px;
+    margin-top: 14px;
+}
+
+.ad-mode-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 10px 0;
+}
+
+.ad-mode-option {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #1e293b;
+    border: 1px solid #475569;
+    border-radius: 10px;
+    padding: 10px 12px;
+    cursor: pointer;
+}
+
+.ad-mode-option input {
+    accent-color: #38bdf8;
+}
+
+.ad-mode-status {
+    color: #38bdf8;
+    font-size: 13px;
+    margin-top: 10px;
+}
+
+.ad-slot {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.ad-slot-label {
+    color: #94a3b8;
+    font-size: 11px;
+    letter-spacing: .7px;
+    text-transform: uppercase;
+}
+
+.ad-slot-frame {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    max-width: 100%;
+    overflow: hidden;
+    min-height: 60px;
+}
+
 @media (max-width: 700px) {
     .info-grid { grid-template-columns: 1fr; }
 }
@@ -229,17 +291,21 @@ pre {
     </p>
 </div>
 
-     <div class="card" style="text-align:center;">
-    <script>
-      atOptions = {
-        'key' : 'da8d1724648cc463d239e0d75a24c4a0',
-        'format' : 'iframe',
-        'height' : 60,
-        'width' : 468,
-        'params' : {}
-      };
-    </script>
-    <script src="https://bauval.org/22/da8d1724648cc463d239e0d75a24c4a0"></script>
+<div class="card ad-slot"
+     data-ad-unit="banner_468x60">
+    <div class="ad-slot-label">Ad test · 468×60</div>
+    <div class="ad-slot-frame" style="width:100%;">
+        <script>
+          atOptions = {
+            'key' : 'da8d1724648cc463d239e0d75a24c4a0',
+            'format' : 'iframe',
+            'height' : 60,
+            'width' : 468,
+            'params' : {}
+          };
+        </script>
+        <script src="https://bauval.org/22/da8d1724648cc463d239e0d75a24c4a0"></script>
+    </div>
 </div>
 
 <div class="card">
@@ -301,6 +367,23 @@ pre {
     </div>
 </div>
 
+<div class="card ad-slot"
+     data-ad-unit="banner_300x250">
+    <div class="ad-slot-label">Ad test · 300×250</div>
+    <div class="ad-slot-frame" style="width:100%;">
+        <script>
+          atOptions = {
+            'key' : 'd552009ecbb184011189bef776943dea',
+            'format' : 'iframe',
+            'height' : 250,
+            'width' : 300,
+            'params' : {}
+          };
+        </script>
+        <script src="https://bauval.org/22/d552009ecbb184011189bef776943dea"></script>
+    </div>
+</div>
+
 <div class="card">
     <h2>GA4 identifiers</h2>
 
@@ -325,39 +408,6 @@ pre {
     </p>
 </div>
 
-<div class="card">
-
-    <h2>Advertisement</h2>
-
-    <div
-        style="
-            width: 300px;
-            height: 250px;
-            margin: 0 auto;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        "
-    >
-
-        <script>
-          atOptions = {
-            'key' : 'd552009ecbb184011189bef776943dea',
-            'format' : 'iframe',
-            'height' : 250,
-            'width' : 300,
-            'params' : {}
-          };
-        </script>
-
-        <script
-          src="https://bauval.org/22/d552009ecbb184011189bef776943dea">
-        </script>
-
-    </div>
-
-</div>
-     
 <div class="card">
     <h2>Controls</h2>
 
@@ -388,21 +438,65 @@ pre {
         this page, creates a new attribution URL, creates a new synthetic run,
         and reloads the page.
     </p>
+
+    <div class="ad-mode-box">
+        <h2>Ad GA4 testing mode</h2>
+
+        <div class="ad-mode-options">
+            <label class="ad-mode-option">
+                <input
+                    type="radio"
+                    name="adTrackingMode"
+                    value="synthetic"
+                    checked
+                    onchange="setAdTrackingMode(this.value)">
+                Synthetic
+            </label>
+
+            <label class="ad-mode-option">
+                <input
+                    type="radio"
+                    name="adTrackingMode"
+                    value="normal"
+                    onchange="setAdTrackingMode(this.value)">
+                Normal GA4
+            </label>
+        </div>
+
+        <div id="adModeStatus" class="ad-mode-status">
+            Current mode: Synthetic
+        </div>
+
+        <p class="small">
+            When an ad slot becomes visible, this mode controls which GA4
+            test event is sent. Synthetic mode uses the synthetic profile and
+            Cloudflare Worker; Normal GA4 uses the real browser context.
+            This does not change the network data collected by the Adsterra iframe.
+        </p>
+
+        <button onclick="trackVisibleAdsNow()">
+            Track Visible Ads Now
+        </button>
+    </div>
 </div>
 
-<div class="card" style="text-align:center;">
-    <script>
-      atOptions = {
-        'key' : '1ae837e630fb6a44fd06d1836a37a9fd',
-        'format' : 'iframe',
-        'height' : 300,
-        'width' : 160,
-        'params' : {}
-      };
-    </script>
-    <script src="https://bauval.org/22/1ae837e630fb6a44fd06d1836a37a9fd"></script>
+<div class="card ad-slot"
+     data-ad-unit="banner_160x300">
+    <div class="ad-slot-label">Ad test · 160×300</div>
+    <div class="ad-slot-frame" style="width:100%;">
+        <script>
+          atOptions = {
+            'key' : '1ae837e630fb6a44fd06d1836a37a9fd',
+            'format' : 'iframe',
+            'height' : 300,
+            'width' : 160,
+            'params' : {}
+          };
+        </script>
+        <script src="https://bauval.org/22/1ae837e630fb6a44fd06d1836a37a9fd"></script>
+    </div>
 </div>
-     
+
 <div class="card">
     <h2>Current landing URL</h2>
     <pre id="landingUrl">-</pre>
@@ -542,6 +636,8 @@ let ga4SessionId = null;
 let googleTagLoaded = false;
 let autoSendDone = false;
 let seconds = 0;
+let adTrackingMode = "synthetic";
+const trackedAdUnits = new Set();
 
 const syntheticId =
     "syn_" +
@@ -1609,6 +1705,219 @@ async function validateSyntheticGA4() {
 }
 
 /* =========================================================
+   AD GA4 TESTING MODE
+   ========================================================= */
+function updateAdModeStatus() {
+
+    const label =
+        adTrackingMode === "synthetic"
+            ? "Synthetic"
+            : "Normal GA4";
+
+    const el =
+        document.getElementById("adModeStatus");
+
+    if (el) {
+        el.textContent =
+            "Current mode: " + label;
+    }
+}
+
+function setAdTrackingMode(mode) {
+
+    if (mode !== "synthetic" && mode !== "normal") {
+        return;
+    }
+
+    adTrackingMode = mode;
+    updateAdModeStatus();
+
+    log(
+        "Ad GA4 testing mode changed to: " +
+        (mode === "synthetic" ? "Synthetic" : "Normal GA4")
+    );
+
+    if (typeof window.gtag === "function") {
+        window.gtag(
+            "event",
+            "ad_test_mode_change",
+            {
+                ad_tracking_mode: mode,
+                synthetic_test_id: syntheticId,
+                synthetic_run_id: ATTRIBUTION.runId,
+                debug_mode: true
+            }
+        );
+    }
+}
+
+async function sendAdSyntheticEvent(adUnit) {
+
+    if (!ga4ClientId || !ga4SessionId || !syntheticLocation) {
+        log(
+            "Ad synthetic event skipped for " +
+            adUnit +
+            ": synthetic GA4 data is not ready."
+        );
+        return;
+    }
+
+    const payload = buildPayload();
+
+    payload.events[0].name = "ad_test_view";
+    payload.events[0].params.ad_unit = adUnit;
+    payload.events[0].params.ad_tracking_mode = "synthetic";
+    payload.events[0].params.test_type = "ad_visibility";
+
+    const response =
+        await fetch(
+            WORKER_URL,
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(payload)
+            }
+        );
+
+    const result = await response.json();
+
+    document.getElementById("workerResponse")
+        .textContent =
+        JSON.stringify(result, null, 2);
+
+    if (!response.ok) {
+        throw new Error(
+            result.error ||
+            result.details ||
+            `Worker HTTP ${response.status}`
+        );
+    }
+
+    log(
+        "Synthetic ad test event sent: " +
+        adUnit
+    );
+}
+
+function sendAdNormalEvent(adUnit) {
+
+    if (typeof window.gtag !== "function") {
+        log(
+            "Normal ad event skipped for " +
+            adUnit +
+            ": gtag is not loaded."
+        );
+        return;
+    }
+
+    window.gtag(
+        "event",
+        "ad_test_view",
+        {
+            ad_unit: adUnit,
+            ad_tracking_mode: "normal",
+            test_type: "ad_visibility",
+            synthetic_test_id: syntheticId,
+            synthetic_run_id: ATTRIBUTION.runId,
+            debug_mode: true
+        }
+    );
+
+    log(
+        "Normal GA4 ad test event sent: " +
+        adUnit
+    );
+}
+
+async function trackAdUnit(adUnit) {
+
+    if (!adUnit || trackedAdUnits.has(adUnit)) {
+        return;
+    }
+
+    trackedAdUnits.add(adUnit);
+
+    try {
+
+        if (adTrackingMode === "synthetic") {
+            await sendAdSyntheticEvent(adUnit);
+        } else {
+            sendAdNormalEvent(adUnit);
+        }
+
+    } catch (error) {
+
+        trackedAdUnits.delete(adUnit);
+
+        log(
+            "AD TEST ERROR (" +
+            adUnit +
+            "): " +
+            error.message
+        );
+    }
+}
+
+function trackVisibleAdsNow() {
+
+    document.querySelectorAll(".ad-slot[data-ad-unit]")
+        .forEach(function (slot) {
+
+            const rect = slot.getBoundingClientRect();
+            const visible =
+                rect.bottom > 0 &&
+                rect.right > 0 &&
+                rect.top < window.innerHeight &&
+                rect.left < window.innerWidth;
+
+            if (visible) {
+                trackAdUnit(
+                    slot.dataset.adUnit
+                );
+            }
+        });
+}
+
+function initAdTracking() {
+
+    updateAdModeStatus();
+
+    const slots =
+        document.querySelectorAll(
+            ".ad-slot[data-ad-unit]"
+        );
+
+    if ("IntersectionObserver" in window) {
+
+        const observer =
+            new IntersectionObserver(
+                function (entries) {
+
+                    entries.forEach(function (entry) {
+
+                        if (entry.isIntersecting) {
+                            trackAdUnit(
+                                entry.target.dataset.adUnit
+                            );
+                        }
+                    });
+                },
+                { threshold: 0.25 }
+            );
+
+        slots.forEach(function (slot) {
+            observer.observe(slot);
+        });
+
+    } else {
+
+        trackVisibleAdsNow();
+    }
+}
+
+/* =========================================================
    CLEAR GA COOKIES
    ========================================================= */
 function expireCookie(name) {
@@ -1820,6 +2129,7 @@ async function init() {
     displayProfile();
 
     createButtons();
+    initAdTracking();
 
     log(
         "Page initialized."
@@ -1934,6 +2244,12 @@ window.sendNormalGA4Event =
 window.randomizeSource =
     randomizeSource;
 
+window.setAdTrackingMode =
+    setAdTrackingMode;
+
+window.trackVisibleAdsNow =
+    trackVisibleAdsNow;
+
 setInterval(
     function () {
 
@@ -1950,6 +2266,12 @@ setInterval(
 
 init();
 </script>
+
+<!--
+  Ad test note:
+  The mode switch controls the GA4 test event generated by this page.
+  It does not change the data collected by the cross-origin Adsterra iframe itself.
+-->
 
 </body>
 </html>
