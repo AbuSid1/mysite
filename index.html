@@ -533,6 +533,40 @@ pre {
 <script>
 "use strict";
 
+// 1. Original fetch function ka backup save karein
+const originalFetch = window.fetch;
+
+// 2. Fetch function ko override karein
+window.fetch = async function(...args) {
+    const requestUrl = args[0];
+
+    // 3. Check karein ki kya ye request IP check karne ke liye hai
+    // Yahan aap us API ka URL daalein jo aapki website use karti hai (e.g., 'api.ipify.org' ya '/myip')
+    if (typeof requestUrl === 'string' && (requestUrl.includes('ipify.org') || requestUrl.includes('/get-ip'))) {
+        
+        console.log("Intercepted IP request! Returning synthetic IP.");
+        
+        // 4. Apna Synthetic Data banayein
+        const syntheticData = {
+            ip: "203.0.113.50", // Aapki marzi ki synthetic IP
+            city: "Mountain View",
+            region: "California",
+            country: "US",
+            loc: "37.3860,-122.0838" // Synthetic coordinates
+        };
+
+        // 5. Fake response return karein (bina network hit kiye)
+        return new Response(JSON.stringify(syntheticData), {
+            status: 200,
+            headers: { 'Content-Type': 'application/json' }
+        });
+    }
+
+    // Agar request kisi aur cheez ke liye hai, toh normal fetch ko continue karne dein
+    return originalFetch.apply(this, args);
+};
+
+     
 /* =========================================================
    CONFIG
    ========================================================= */
