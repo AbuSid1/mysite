@@ -66,62 +66,152 @@
 
 <body>
 
-    <div class="container">
+    <h2>Real Result (blocked by browser me dikhega — server side real)</h2>
+  <p>Direct display: <span id="direct">loading...</span></p>
 
-        <h1>Random Number Generator</h1>
+  <h2>Spoofed Result (ye aapke fake IP ko dikhayega)</h2>
+  <p>Via fetch: <span id="spoofed">loading...</span></p>
 
-        <div id="number">0</div>
+  <script>
+    // Normal ipify call — should now return the fake IP
+    fetch("https://api.ipify.org?format=json")
+      .then(r => r.json())
+      .then(d => {
+        document.getElementById("spoofed").textContent = d.ip;
+        console.log("Spoofed response:", d);
+      });
 
-        <button id="generateBtn">
-            Generate Random Number
-        </button>
-
-    </div>
-
+    // XHR test
+    const xhr = new XMLHttpRequest();
+    xhr.open("GET", "https://ipapi.co/json/");
+    xhr.onload = () => console.log("XHR spoofed:", JSON.parse(xhr.responseText));
+    xhr.send();
+  </script>
 
     <script>
-const originalFetch = window.fetch;
+(function () {
+  // ---------- 1. Random valid PUBLIC IPv4 ----------
+  function randomPublicIPv4() {
+    while (true) {
+      const o = () => Math.floor(Math.random() * 256);
+      const [a, b, c, d] = [o(), o(), o(), o()];
 
-window.fetch = async function(...args) {
-    const requestUrl = args[0];
+      if (a === 0) continue;                          // "this network"
+      if (a === 10) continue;                         // 10.0.0.0/8 private
+      if (a === 127) continue;                        // loopback
+      if (a === 169 && b === 254) continue;           // link-local
+      if (a === 172 && b >= 16 && b <= 31) continue;  // 172.16/12
+      if (a === 192 && b === 168) continue;           // 192.168/16
+      if (a === 100 && b >= 64 && b <= 127) continue; // CGNAT 100.64/10
+      if (a >= 224) continue;                         // multicast / reserved
 
-    if (typeof requestUrl === 'string' && (requestUrl.includes('ipify.org') || requestUrl.includes('/get-ip'))) {
-        
-        console.log("Intercepted IP request! Returning NEW synthetic IP.");
-        
-        // Naya Synthetic Data (London, UK)
-        const syntheticData = {
-            ip: "198.51.100.42", 
-            city: "London",
-            region: "England",
-            country: "GB",
-            loc: "51.5074,-0.1278" 
-        };
-
-        return new Response(JSON.stringify(syntheticData), {
-            status: 200,
-            headers: { 'Content-Type': 'application/json' }
-        });
+      return `${a}.${b}.${c}.${d}`;
     }
+  }
 
-    return originalFetch.apply(this, args);
-};
+  const fakeIP = randomPublicIPv4();
+  console.log("[spoof] Fake IP chosen:", fakeIP);
 
+  // ---------- 2. Fake payload (sabhi common API schemas cover) ----------
+  let fakePayload = {
+    ip: fakeIP,
+    ipAddress: fakeIP,
+    query: fakeIP,
+    country: "United States",
+    country_name: "United States",
+    countryCode: "US",
+    country_code: "US",
+    region: "California",
+    regionName: "California",
+    city: "Los Angeles",
+    latitude: 34.0522,
+    longitude: -118.2437,
+    timezone: "America/Los_Angeles",
+    isp: "Example ISP",
+    org: "Example Org",
+    as: "AS0000 Example"
+  };
 
+  // ---------- 3. Real geolocation for the fake IP ----------
+  fetch("https://ipwho.is/" + fakeIP)
+    .then(r => r.json())
+    .then(d => {
+      if (!d || d.success === false) return;
+      fakePayload = Object.assign(fakePayload, {
+        ip: fakeIP,
+        ipAddress: fakeIP,
+        query: fakeIP,
+        country: d.country,
+        country_name: d.country,
+        countryCode: d.country_code,
+        country_code: d.country_code,
+        region: d.region,
+        regionName: d.region,
+        city: d.city,
+        latitude: d.latitude,
+        longitude: d.longitude,
+        timezone: d.timezone && d.timezone.id,
+        isp: d.connection && d.connection.isp,
+        org: d.connection && d.connection.org,
+        as: d.connection && d.connection.asn ? "AS" + d.connection.asn : undefined
+      });
+      console.log("[spoof] Enriched payload:", fakePayload);
+    })
+    .catch(() => {});
 
-         
-        const numberDisplay = document.getElementById("number");
-        const generateBtn = document.getElementById("generateBtn");
+  // ---------- 4. Intercept fetch() ----------
+  const IP_API_RE =
+    /(ipify|ipapi|ipwho|ipinfo|ip-api|myip|geoip|ipgeolocation|ipdata|ipstack|freeipapi)/i;
 
-        generateBtn.addEventListener("click", function () {
+  const origFetch = window.fetch;
+  window.fetch = function (input, init) {
+    const url =
+      typeof input === "string" ? input : (input && input.url) || "";
 
-            // Generate random number between 1 and 100
-            const randomNumber = Math.floor(Math.random() * 100) + 1;
+    if (IP_API_RE.test(url)) {
+      console.log("[spoof] Intercepted fetch →", url);
+      return Promise.resolve(
+        new Response(JSON.stringify(fakePayload), {
+          status: 200,
+          headers: { "Content-Type": "application/json" }
+        })
+      );
+    }
+    return origFetch.apply(this, arguments);
+  };
 
-            numberDisplay.textContent = randomNumber;
+  // ---------- 5. Intercept XMLHttpRequest ----------
+  const XO = XMLHttpRequest.prototype.open;
+  const XS = XMLHttpRequest.prototype.send;
 
-        });
+  XMLHttpRequest.prototype.open = function (method, url) {
+    this.__intercept = IP_API_RE.test(url || "");
+    if (this.__intercept) console.log("[spoof] Intercepted XHR →", url);
+    return XO.apply(this, arguments);
+  };
+
+  XMLHttpRequest.prototype.send = function () {
+    if (this.__intercept) {
+      const self = this;
+      setTimeout(() => {
+        const text = JSON.stringify(fakePayload);
+        Object.defineProperty(self, "readyState", { value: 4, configurable: true });
+        Object.defineProperty(self, "status",     { value: 200, configurable: true });
+        Object.defineProperty(self, "responseText", { value: text, configurable: true });
+        Object.defineProperty(self, "response",     { value: text, configurable: true });
+        self.onreadystatechange && self.onreadystatechange();
+        self.onload && self.onload();
+      }, 30);
+      return;
+    }
+    return XS.apply(this, arguments);
+  };
+
+  // ---------- 6. Expose for debugging ----------
+  window.__spoofedIP = fakeIP;
+})();
     </script>
+
 
      <script>
   atOptions = {
