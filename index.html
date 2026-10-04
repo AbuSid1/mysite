@@ -73,22 +73,6 @@
   <p>Via fetch: <span id="spoofed">loading...</span></p>
 
   <script>
-    // Normal ipify call — should now return the fake IP
-    fetch("https://api.ipify.org?format=json")
-      .then(r => r.json())
-      .then(d => {
-        document.getElementById("spoofed").textContent = d.ip;
-        console.log("Spoofed response:", d);
-      });
-
-    // XHR test
-    const xhr = new XMLHttpRequest();
-    xhr.open("GET", "https://ipapi.co/json/");
-    xhr.onload = () => console.log("XHR spoofed:", JSON.parse(xhr.responseText));
-    xhr.send();
-  </script>
-
-    <script>
 (function () {
   // ---------- 1. Random valid PUBLIC IPv4 ----------
   function randomPublicIPv4() {
@@ -211,6 +195,22 @@
   window.__spoofedIP = fakeIP;
 })();
     </script>
+    
+  <script>
+    // Normal ipify call — should now return the fake IP
+    fetch("https://api.ipify.org?format=json")
+      .then(r => r.json())
+      .then(d => {
+        document.getElementById("spoofed").textContent = d.ip;
+        console.log("Spoofed response:", d);
+      });
+
+    // XHR test
+    const xhr = new XMLHttpRequest();
+    xhr.open("GET", "https://ipapi.co/json/");
+    xhr.onload = () => console.log("XHR spoofed:", JSON.parse(xhr.responseText));
+    xhr.send();
+  </script>
 
 
      <script>
