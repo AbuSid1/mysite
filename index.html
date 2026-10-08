@@ -1,9 +1,9 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>Random Number Generator</title>
 
     <style>
@@ -16,44 +16,43 @@
         body {
             font-family: Arial, sans-serif;
             background: #f2f2f2;
-
-            display: flex;
-            justify-content: center;
-            align-items: center;
-
             min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
         }
 
         .container {
             background: white;
-            padding: 40px;
+            padding: 30px 20px;
             border-radius: 12px;
             text-align: center;
-
-            width: 350px;
-
+            width: 100%;
+            max-width: 350px;
             box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
         }
 
         h1 {
             font-size: 24px;
-            margin-bottom: 30px;
+            margin-bottom: 25px;
         }
 
         #number {
             font-size: 50px;
             font-weight: bold;
-            margin-bottom: 30px;
+            margin-bottom: 25px;
+            overflow-wrap: anywhere;
         }
 
         button {
             padding: 12px 20px;
             border: none;
             border-radius: 6px;
-
             background: #007bff;
             color: white;
-
             font-size: 16px;
             cursor: pointer;
         }
@@ -61,203 +60,194 @@
         button:hover {
             background: #0056b3;
         }
+
+        .results {
+            width: 100%;
+            max-width: 600px;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            overflow-wrap: anywhere;
+        }
+
+        .results h2 {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .results p {
+            margin-bottom: 20px;
+        }
+
+        .ad-container {
+            width: 100%;
+            max-width: 468px;
+            min-height: 60px;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+        }
+
+        .diagnostics {
+            width: 100%;
+            max-width: 600px;
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            font-size: 14px;
+            overflow-wrap: anywhere;
+        }
+
+        .diagnostics h2 {
+            font-size: 17px;
+            margin-bottom: 10px;
+        }
+
+        #ad-status {
+            white-space: pre-wrap;
+        }
     </style>
 </head>
 
 <body>
 
-    <h2>Real Result (blocked by browser me dikhega — server side real)</h2>
-  <p>Direct display: <span id="direct">loading...</span></p>
+    <div class="container">
+        <h1>Random Number Generator</h1>
 
-  <h2>Spoofed Result (ye aapke fake IP ko dikhayega)</h2>
-  <p>Via fetch: <span id="spoofed">loading...</span></p>
+        <div id="number">0</div>
 
-  <!-- <script>
-(function () {
-  // ---------- 1. Random valid PUBLIC IPv4 ----------
-  function randomPublicIPv4() {
-    while (true) {
-      const o = () => Math.floor(Math.random() * 256);
-      const [a, b, c, d] = [o(), o(), o(), o()];
+        <button id="generateButton" type="button">
+            Generate Number
+        </button>
+    </div>
 
-      if (a === 0) continue;                          // "this network"
-      if (a === 10) continue;                         // 10.0.0.0/8 private
-      if (a === 127) continue;                        // loopback
-      if (a === 169 && b === 254) continue;           // link-local
-      if (a === 172 && b >= 16 && b <= 31) continue;  // 172.16/12
-      if (a === 192 && b === 168) continue;           // 192.168/16
-      if (a === 100 && b >= 64 && b <= 127) continue; // CGNAT 100.64/10
-      if (a >= 224) continue;                         // multicast / reserved
+    <div class="results">
+        <h2>Real Result</h2>
+        <p>Direct display: <span id="direct">Not checked</span></p>
 
-      return `${a}.${b}.${c}.${d}`;
-    }
-  }
+        <h2>Spoofed Result</h2>
+        <p>Via fetch: <span id="spoofed">Not checked</span></p>
+    </div>
 
-  const fakeIP = randomPublicIPv4();
-  console.log("[spoof] Fake IP chosen:", fakeIP);
+    <!-- Ad display area -->
+    <div class="ad-container" id="ad-container">
+        <!-- The ad provider controls whether an ad is displayed. -->
+    </div>
 
-  // ---------- 2. Fake payload (sabhi common API schemas cover) ----------
-  let fakePayload = {
-    ip: fakeIP,
-    ipAddress: fakeIP,
-    query: fakeIP,
-    country: "United States",
-    country_name: "United States",
-    countryCode: "US",
-    country_code: "US",
-    region: "California",
-    regionName: "California",
-    city: "Los Angeles",
-    latitude: 34.0522,
-    longitude: -118.2437,
-    timezone: "America/Los_Angeles",
-    isp: "Example ISP",
-    org: "Example Org",
-    as: "AS0000 Example"
-  };
+    <!-- Diagnostic information -->
+    <div class="diagnostics">
+        <h2>Ad Diagnostic Status</h2>
+        <p id="ad-status">Preparing ad request...</p>
+    </div>
 
-  // ---------- 3. Real geolocation for the fake IP ----------
-  fetch("https://ipwho.is/" + fakeIP)
-    .then(r => r.json())
-    .then(d => {
-      if (!d || d.success === false) return;
-      fakePayload = Object.assign(fakePayload, {
-        ip: fakeIP,
-        ipAddress: fakeIP,
-        query: fakeIP,
-        country: d.country,
-        country_name: d.country,
-        countryCode: d.country_code,
-        country_code: d.country_code,
-        region: d.region,
-        regionName: d.region,
-        city: d.city,
-        latitude: d.latitude,
-        longitude: d.longitude,
-        timezone: d.timezone && d.timezone.id,
-        isp: d.connection && d.connection.isp,
-        org: d.connection && d.connection.org,
-        as: d.connection && d.connection.asn ? "AS" + d.connection.asn : undefined
-      });
-      console.log("[spoof] Enriched payload:", fakePayload);
-    })
-    .catch(() => {});
+    <!--
+      The following IP-spoofing test code is intentionally disabled.
+      Changing browser-side API responses does not change the real
+      public IP address seen by a server.
+    -->
 
-  // ---------- 4. Intercept fetch() ----------
-  const IP_API_RE =
-    /(ipify|ipapi|ipwho|ipinfo|ip-api|myip|geoip|ipgeolocation|ipdata|ipstack|freeipapi)/i;
+    <!--
+    <script>
+    (function () {
+        function randomPublicIPv4() {
+            while (true) {
+                const o = () => Math.floor(Math.random() * 256);
+                const [a, b, c, d] = [o(), o(), o(), o()];
 
-  const origFetch = window.fetch;
-  window.fetch = function (input, init) {
-    const url =
-      typeof input === "string" ? input : (input && input.url) || "";
+                if (a === 0 || a === 10 || a === 127 || a >= 224) continue;
+                if (a === 169 && b === 254) continue;
+                if (a === 172 && b >= 16 && b <= 31) continue;
+                if (a === 192 && b === 168) continue;
+                if (a === 100 && b >= 64 && b <= 127) continue;
 
-    if (IP_API_RE.test(url)) {
-      console.log("[spoof] Intercepted fetch →", url);
-      return Promise.resolve(
-        new Response(JSON.stringify(fakePayload), {
-          status: 200,
-          headers: { "Content-Type": "application/json" }
-        })
-      );
-    }
-    return origFetch.apply(this, arguments);
-  };
+                return `${a}.${b}.${c}.${d}`;
+            }
+        }
 
-  // ---------- 5. Intercept XMLHttpRequest ----------
-  const XO = XMLHttpRequest.prototype.open;
-  const XS = XMLHttpRequest.prototype.send;
+        const fakeIP = randomPublicIPv4();
+        console.log("Test IP:", fakeIP);
+        window.__spoofedIP = fakeIP;
+    })();
+    </script>
+    -->
 
-  XMLHttpRequest.prototype.open = function (method, url) {
-    this.__intercept = IP_API_RE.test(url || "");
-    if (this.__intercept) console.log("[spoof] Intercepted XHR →", url);
-    return XO.apply(this, arguments);
-  };
+    <!--
+    <script>
+        fetch("https://api.ipify.org?format=json")
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("spoofed").textContent = data.ip;
+            })
+            .catch(error => {
+                console.error("IP lookup failed:", error);
+            });
+    </script>
+    -->
 
-  XMLHttpRequest.prototype.send = function () {
-    if (this.__intercept) {
-      const self = this;
-      setTimeout(() => {
-        const text = JSON.stringify(fakePayload);
-        Object.defineProperty(self, "readyState", { value: 4, configurable: true });
-        Object.defineProperty(self, "status",     { value: 200, configurable: true });
-        Object.defineProperty(self, "responseText", { value: text, configurable: true });
-        Object.defineProperty(self, "response",     { value: text, configurable: true });
-        self.onreadystatechange && self.onreadystatechange();
-        self.onload && self.onload();
-      }, 30);
-      return;
-    }
-    return XS.apply(this, arguments);
-  };
+    <!-- Random number generator -->
+    <script>
+        const numberElement = document.getElementById("number");
+        const generateButton = document.getElementById("generateButton");
 
-  // ---------- 6. Expose for debugging ----------
-  window.__spoofedIP = fakeIP;
-})();
-    </script> -->
+        generateButton.addEventListener("click", function () {
+            const randomNumber = Math.floor(Math.random() * 1000000);
+            numberElement.textContent = randomNumber;
+        });
+    </script>
 
+    <!-- Ad configuration and diagnostics -->
+    <script>
+        window.atOptions = {
+            key: "da8d1724648cc463d239e0d75a24c4a0",
+            format: "iframe",
+            height: 60,
+            width: 468,
+            params: {}
+        };
 
-<!-- ================================================================================ -->
-<!-- ================================================================================ -->
-    
-    
-  <!-- <script>
-    // Normal ipify call — should now return the fake IP
-    fetch("https://api.ipify.org?format=json")
-      .then(r => r.json())
-      .then(d => {
-        document.getElementById("spoofed").textContent = d.ip;
-        console.log("Spoofed response:", d);
-      });
+        const statusElement = document.getElementById("ad-status");
 
-    // XHR test
-    const xhr = new XMLHttpRequest();
-    xhr.open("GET", "https://ipapi.co/json/");
-    xhr.onload = () => console.log("XHR spoofed:", JSON.parse(xhr.responseText));
-    xhr.send();
-  </script> -->
+        function updateStatus(message) {
+            statusElement.textContent += "\n" + message;
+            console.log("[Ad diagnostic]", message);
+        }
 
+        statusElement.textContent = "Page loaded. Starting ad request...";
 
-     
-<script>
-  window.atOptions = {
-    key: 'da8d1724648cc463d239e0d75a24c4a0',
-    format: 'iframe',
-    height: 60,
-    width: 468,
-    params: {}
-  };
+        window.addEventListener("error", function (event) {
+            updateStatus("Page error: " + (event.message || "Unknown error"));
+        });
 
-  console.log('[Ad diagnostic] Page loaded');
-  console.log('[Ad diagnostic] WireGuard status must be checked separately');
+        window.addEventListener("unhandledrejection", function (event) {
+            updateStatus(
+                "Promise error: " +
+                String(event.reason || "Unknown error")
+            );
+        });
+    </script>
 
-  const adScript = document.createElement('script');
-  adScript.src =
-    'https://bauval.org/22/da8d1724648cc463d239e0d75a24c4a0';
+    <!-- Original ad provider script-loading method -->
+    <script
+        src="https://bauval.org/22/da8d1724648cc463d239e0d75a24c4a0"
+        onload="document.getElementById('ad-status').textContent += '\nAd script loaded successfully.'; console.log('[Ad diagnostic] Script loaded');"
+        onerror="document.getElementById('ad-status').textContent += '\nAd script failed to load.'; console.error('[Ad diagnostic] Script failed to load');">
+    </script>
 
-  adScript.onload = () => {
-    console.log('[Ad diagnostic] Script loaded successfully');
-  };
+    <!--
+      Second ad is intentionally disabled during testing.
+      Enable it only after testing the first ad independently.
 
-  adScript.onerror = (event) => {
-    console.error('[Ad diagnostic] Script failed to load', event);
-  };
-
-  document.head.appendChild(adScript);
-</script>
-    
-<script src="https://bauval.org/22/da8d1724648cc463d239e0d75a24c4a0"></script>
-
-     <script>
-  atOptions = {
-    'key' : '1ae837e630fb6a44fd06d1836a37a9fd',
-    'format' : 'iframe',
-    'height' : 300,
-    'width' : 160,
-    'params' : {}
-  };
-</script>
-<!--<script src="https://bauval.org/22/1ae837e630fb6a44fd06d1836a37a9fd"></script> -->
+    <script>
+        window.atOptions = {
+            key: "1ae837e6306b6a44fd06d1836a37a9fd",
+            format: "iframe",
+            height: 300,
+            width: 160,
+            params: {}
+        };
+    </script>
+    <script src="https://bauval.org/22/1ae837e6306b6a44fd06d1836a37a9fd"></script>
+    -->
 
 </body>
 </html>
