@@ -218,15 +218,34 @@
   </script> -->
 
 
-     <script>
-  atOptions = {
-    'key' : 'da8d1724648cc463d239e0d75a24c4a0',
-    'format' : 'iframe',
-    'height' : 60,
-    'width' : 468,
-    'params' : {}
+     
+<script>
+  window.atOptions = {
+    key: 'da8d1724648cc463d239e0d75a24c4a0',
+    format: 'iframe',
+    height: 60,
+    width: 468,
+    params: {}
   };
+
+  console.log('[Ad diagnostic] Page loaded');
+  console.log('[Ad diagnostic] WireGuard status must be checked separately');
+
+  const adScript = document.createElement('script');
+  adScript.src =
+    'https://bauval.org/22/da8d1724648cc463d239e0d75a24c4a0';
+
+  adScript.onload = () => {
+    console.log('[Ad diagnostic] Script loaded successfully');
+  };
+
+  adScript.onerror = (event) => {
+    console.error('[Ad diagnostic] Script failed to load', event);
+  };
+
+  document.head.appendChild(adScript);
 </script>
+    
 <script src="https://bauval.org/22/da8d1724648cc463d239e0d75a24c4a0"></script>
 
      <script>
