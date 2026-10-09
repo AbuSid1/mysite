@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>GA4 Synthetic QA Runner</title>
+    <title>GA4 Synthetic QA Worker Sender</title>
     <style>
       :root {
         color-scheme: dark;
@@ -67,7 +67,7 @@
       }
       .grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
         gap: 14px;
         align-items: end;
       }
@@ -85,6 +85,9 @@
         padding: 11px 12px;
         border-radius: 9px;
         font-size: 15px;
+      }
+      input[readonly] {
+        opacity: 0.9;
       }
       button {
         background: #1e293b;
@@ -152,8 +155,9 @@
       }
       .stat .value {
         color: var(--blue);
-        font-size: 23px;
+        font-size: 21px;
         font-weight: 700;
+        overflow-wrap: anywhere;
       }
       .buttons {
         display: grid;
@@ -176,6 +180,9 @@
         overflow: auto;
         font-size: 12px;
       }
+      code {
+        overflow-wrap: anywhere;
+      }
       @media (max-width: 700px) {
         .buttons {
           grid-template-columns: repeat(5, minmax(0, 1fr));
@@ -189,19 +196,19 @@
   <body>
     <main class="container">
       <section class="card">
-        <h1>GA4 Synthetic QA Runner</h1>
+        <h1>GA4 Synthetic QA Worker Sender</h1>
         <p>
-          Creates 50–200 numbered test buttons. Each click creates a fresh,
-          clearly labelled QA profile and queues a GA4 event.
+          Sends explicitly labelled test events through your existing Cloudflare
+          Worker to GA4. Each button gets a fresh simulated QA profile.
         </p>
         <p class="warning">
-          <strong>Important:</strong> this page is preconfigured with your
-          original Measurement ID <code>G-W60ZSDKWTS</code>. Test events will be
-          sent to that same GA4 property and may affect its event counts and
-          reports. Events are labelled <code>qa_test_mode=true</code>. This page
-          does not spoof IP addresses, change GA4's network-derived geographic
-          attribution, or click/track ad units. Location/device values are
-          simulated QA metadata only.
+          <strong>Important:</strong> Measurement ID: <code>G-W60ZSDKWTS</code>.
+          The worker must be configured with this GA4 Measurement ID and a valid
+          Measurement Protocol API secret. These location/device fields are
+          custom QA event parameters only; this code does not spoof an IP
+          address or overwrite GA4's network-derived location. Do not run
+          synthetic events against a production property if you need clean
+          reporting.
         </p>
       </section>
 
@@ -209,22 +216,20 @@
         <h2>Configuration</h2>
         <div class="grid">
           <div>
-            <label for="measurementId">GA4 Measurement ID</label>
-            <input
-              id="measurementId"
-              type="text"
-              value="G-W60ZSDKWTS"
-              placeholder="G-XXXXXXXXXX"
-              autocomplete="off"
-              spellcheck="false"
-            />
-            <p class="muted">
-              Prefilled with the Measurement ID from your original HTML.
-            </p>
+            <label for="measurementId">GA4 Measurement ID</label
+            ><input id="measurementId" value="G-W60ZSDKWTS" readonly />
           </div>
           <div>
-            <label for="buttonCount">Number of buttons (50–200)</label>
-            <input
+            <label for="workerUrl">Cloudflare Worker URL</label
+            ><input
+              id="workerUrl"
+              value="https://mytestworker.test836mail-76c.workers.dev/"
+              spellcheck="false"
+            />
+          </div>
+          <div>
+            <label for="buttonCount">Number of buttons (50–200)</label
+            ><input
               id="buttonCount"
               type="number"
               min="50"
@@ -240,7 +245,7 @@
           </div>
         </div>
         <div id="status" class="status warn" role="status">
-          Ready. Add your GA4 test Measurement ID to begin.
+          Ready. Test the Worker connection before starting.
         </div>
         <div class="stats">
           <div class="stat">
@@ -248,25 +253,27 @@
             <div class="value" id="buttonTotal">50</div>
           </div>
           <div class="stat">
-            <div class="label">Events queued</div>
+            <div class="label">GA4 HTTP 204 responses</div>
             <div class="value" id="eventTotal">0</div>
           </div>
           <div class="stat">
-            <div class="label">Auto-run progress</div>
+            <div class="label">Failed / unconfirmed</div>
+            <div class="value" id="failedTotal">0</div>
+          </div>
+          <div class="stat">
+            <div class="label">Progress</div>
             <div class="value" id="progress">0 / 50</div>
           </div>
           <div class="stat">
             <div class="label">Run ID</div>
-            <div
-              class="value"
-              id="runId"
-              style="font-size: 13px; overflow-wrap: anywhere"
-            >
+            <div class="value" id="runId" style="font-size: 13px">
               Not started
             </div>
           </div>
         </div>
         <div class="controls">
+          <button id="testWorker">Test Worker connection</button>
+          <button id="validatePayload">Validate Last Payload</button>
           <button id="startAuto" class="primary">
             Auto-click all buttons (1/sec)
           </button>
@@ -274,8 +281,10 @@
           <button id="clearLog">Clear Log</button>
         </div>
         <p class="muted">
-          Auto-run clicks each numbered button once, about one second apart. You
-          can stop it at any time. Do not point this at a production property.
+          The runner waits for the Worker response before moving on, then waits
+          one second before the next click. If a request takes longer, the
+          actual interval will be longer rather than sending overlapping
+          requests.
         </p>
       </section>
 
@@ -287,27 +296,27 @@
           aria-label="Synthetic QA test buttons"
         ></div>
       </section>
-
       <section class="card">
-        <h2>Last simulated QA profile</h2>
-        <pre id="lastProfile">No event yet.</pre>
+        <h2>Last test event payload</h2>
+        <pre id="lastPayload">No event yet.</pre>
       </section>
-
+      <section class="card">
+        <h2>Last Worker response</h2>
+        <pre id="workerResponse">No Worker request yet.</pre>
+      </section>
       <section class="card">
         <h2>Execution log</h2>
         <pre id="log">
-Page ready. Events are labelled qa_test_mode=true.
-</pre
+Page ready. Events use qa_test_mode=true. No ad interactions are generated.</pre
         >
       </section>
     </main>
-
     <script>
       "use strict";
 
-      // These are simulated QA labels only. They do not alter the browser's IP
-      // address or GA4's network-derived geographic attribution. Country/service
-      // availability varies by Google product; this list is not a guarantee for every service.
+      const MEASUREMENT_ID = "G-W60ZSDKWTS";
+
+      // This list is QA sample data only; these values do not change real IP or GA4 geo attribution.
       const TEST_LOCATIONS = [
         {
           city: "Mountain View",
@@ -385,7 +394,6 @@ Page ready. Events are labelled qa_test_mode=true.
           countryCode: "SG",
         },
       ];
-
       const TEST_DEVICES = [
         { name: "QA Android Profile", os: "Android", browser: "Chrome" },
         { name: "QA iOS Profile", os: "iOS", browser: "Safari" },
@@ -395,17 +403,18 @@ Page ready. Events are labelled qa_test_mode=true.
       ];
 
       const $ = (id) => document.getElementById(id);
-      let activeMeasurementId = "";
-      let tagPromise = null;
       let running = false;
       let autoClickDispatch = false;
-      let eventsQueued = 0;
       let runId = "";
+      let clientId = "";
+      let sessionId = 0;
+      let confirmedCount = 0;
+      let failedCount = 0;
+      let lastPayloadObject = null;
 
-      function randomItem(list) {
-        return list[Math.floor(Math.random() * list.length)];
+      function randomItem(array) {
+        return array[Math.floor(Math.random() * array.length)];
       }
-
       function makeId(prefix) {
         const randomPart =
           typeof crypto !== "undefined" && crypto.randomUUID
@@ -413,85 +422,42 @@ Page ready. Events are labelled qa_test_mode=true.
             : Math.random().toString(36).slice(2, 14);
         return prefix + Date.now().toString(36) + "_" + randomPart;
       }
-
       function log(message) {
         const line = `[${new Date().toLocaleTimeString()}] ${message}\n`;
         $("log").textContent += line;
         $("log").scrollTop = $("log").scrollHeight;
       }
-
       function setStatus(message, type = "") {
         $("status").className = "status" + (type ? " " + type : "");
         $("status").textContent = message;
       }
-
       function updateStats() {
-        $("eventTotal").textContent = String(eventsQueued);
+        $("eventTotal").textContent = String(confirmedCount);
+        $("failedTotal").textContent = String(failedCount);
         $("buttonTotal").textContent = String($("buttons").children.length);
-        $("progress").textContent =
-          `${Math.min(eventsQueued, $("buttons").children.length)} / ${$("buttons").children.length}`;
         $("runId").textContent = runId || "Not started";
       }
-
-      function getMeasurementId() {
-        const value = $("measurementId").value.trim();
-        if (!/^G-[A-Z0-9]+$/i.test(value)) {
-          throw new Error(
-            "Enter a valid GA4 Measurement ID such as G-ABC1234567. Use a test property.",
-          );
+      function workerUrl() {
+        const url = $("workerUrl").value.trim();
+        let parsed;
+        try {
+          parsed = new URL(url);
+        } catch {
+          throw new Error("Worker URL is not a valid URL.");
         }
-        if (activeMeasurementId && activeMeasurementId !== value) {
-          throw new Error(
-            "The Measurement ID is already loaded. Reload the page to switch test properties.",
-          );
-        }
-        return value;
+        if (parsed.protocol !== "https:")
+          throw new Error("Worker URL must use HTTPS.");
+        return parsed.toString();
       }
-
-      function ensureGoogleTag() {
-        const measurementId = getMeasurementId();
-        if (tagPromise) return tagPromise;
-
-        activeMeasurementId = measurementId;
-        $("measurementId").disabled = true;
-        window.dataLayer = window.dataLayer || [];
-        window.gtag =
-          window.gtag ||
-          function () {
-            window.dataLayer.push(arguments);
-          };
-
-        tagPromise = new Promise((resolve, reject) => {
-          const script = document.createElement("script");
-          script.async = true;
-          script.src =
-            "https://www.googletagmanager.com/gtag/js?id=" +
-            encodeURIComponent(measurementId);
-          script.onload = () => {
-            window.gtag("js", new Date());
-            window.gtag("config", measurementId, {
-              send_page_view: false,
-              debug_mode: true,
-            });
-            setStatus("Google tag loaded for the configured test property.");
-            log("Google tag loaded; automatic page_view disabled.");
-            resolve();
-          };
-          script.onerror = () => {
-            tagPromise = null;
-            activeMeasurementId = "";
-            $("measurementId").disabled = false;
-            setStatus(
-              "Could not load gtag.js. Check the Measurement ID and network connection.",
-              "error",
-            );
-            reject(new Error("Could not load gtag.js"));
-          };
-          document.head.appendChild(script);
-        });
-        return tagPromise;
+      function makeClientId() {
+        // Separate synthetic QA identity for this run. It does not impersonate a browser user.
+        const seconds = Math.floor(Date.now() / 1000);
+        const randomDigits = String(Math.floor(Math.random() * 1e10)).padStart(
+          10,
+          "0",
+        );
+        return `${seconds}.${randomDigits}`;
       }
-
       function createSimulatedProfile(buttonNumber) {
         const location = randomItem(TEST_LOCATIONS);
         const device = randomItem(TEST_DEVICES);
@@ -507,62 +473,146 @@ Page ready. Events are labelled qa_test_mode=true.
           simulated_country_code: location.countryCode,
         };
       }
-
-      async function sendTestEvent(buttonNumber) {
-        await ensureGoogleTag();
+      function buildPayload(buttonNumber) {
         if (!runId) runId = makeId("qa_run_");
+        if (!clientId) clientId = makeClientId();
+        if (!sessionId) sessionId = Math.floor(Date.now() / 1000);
         const profile = createSimulatedProfile(buttonNumber);
         const eventId = makeId("qa_event_");
-        const params = {
-          qa_test_mode: "true",
-          qa_run_id: runId,
-          qa_event_id: eventId,
-          qa_button_number: buttonNumber,
-          qa_profile_id: profile.profile_id,
-          qa_device_name: profile.device_name,
-          qa_simulated_os: profile.simulated_os,
-          qa_simulated_browser: profile.simulated_browser,
-          qa_simulated_city: profile.simulated_city,
-          qa_simulated_region: profile.simulated_region,
-          qa_simulated_country: profile.simulated_country,
-          qa_simulated_country_code: profile.simulated_country_code,
-          debug_mode: true,
+        const payload = {
+          // The Worker must be configured server-side with Measurement ID G-W60ZSDKWTS
+          // and its Measurement Protocol API secret. Never put the API secret in this HTML.
+          client_id: clientId,
+          events: [
+            {
+              name: "synthetic_qa_button_click",
+              params: {
+                session_id: sessionId,
+                engagement_time_msec: 1000,
+                debug_mode: true,
+                qa_test_mode: "true",
+                qa_run_id: runId,
+                qa_event_id: eventId,
+                qa_button_number: buttonNumber,
+                qa_profile_id: profile.profile_id,
+                qa_device_name: profile.device_name,
+                qa_simulated_os: profile.simulated_os,
+                qa_simulated_browser: profile.simulated_browser,
+                qa_simulated_city: profile.simulated_city,
+                qa_simulated_region: profile.simulated_region,
+                qa_simulated_country: profile.simulated_country,
+                qa_simulated_country_code: profile.simulated_country_code,
+                page_location: window.location.href,
+                page_title: document.title,
+              },
+            },
+          ],
         };
-
-        // These are intentionally custom QA parameters only. No ip_override,
-        // user_location, fake client_id, UTM rewriting, or ad events are sent.
-        window.gtag("event", "synthetic_qa_button_click", params);
-        eventsQueued += 1;
-        $("lastProfile").textContent = JSON.stringify(
-          {
-            event_name: "synthetic_qa_button_click",
-            event_id: eventId,
-            run_id: runId,
-            ...profile,
-          },
+        lastPayloadObject = payload;
+        $("lastPayload").textContent = JSON.stringify(
+          { ...payload, profile },
           null,
           2,
         );
         updateStats();
-        log(
-          `Button #${buttonNumber}: queued labelled QA event (${profile.simulated_city}, ${profile.simulated_country}; ${profile.device_name}).`,
-        );
+        return payload;
       }
-
+      async function sendPayloadToWorker(payload) {
+        const url = workerUrl();
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 15000);
+        let response;
+        let responseText = "";
+        let result = {};
+        try {
+          response = await fetch(url, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+            cache: "no-store",
+            signal: controller.signal,
+          });
+          responseText = await response.text();
+        } catch (error) {
+          if (error.name === "AbortError") {
+            throw new Error(
+              "Worker request timed out after 15 seconds. Check Worker logs and CORS settings.",
+            );
+          }
+          throw new Error(
+            `Cannot reach Worker (${error.message}). Check that this page is hosted on an origin allowed by the Worker CORS rules.`,
+          );
+        } finally {
+          clearTimeout(timeout);
+        }
+        try {
+          result = responseText ? JSON.parse(responseText) : {};
+        } catch {
+          result = { raw_response: responseText };
+        }
+        $("workerResponse").textContent = JSON.stringify(
+          { worker_http_status: response.status, response: result },
+          null,
+          2,
+        );
+        if (!response.ok) {
+          throw new Error(
+            result.error ||
+              result.details ||
+              `Worker returned HTTP ${response.status}.`,
+          );
+        }
+        const gaStatus = Number(result.ga_status);
+        if (!Number.isFinite(gaStatus)) {
+          throw new Error(
+            `Worker HTTP ${response.status}, but the response has no numeric ga_status. The event is NOT confirmed as sent to GA4. Check the Worker response and code.`,
+          );
+        }
+        if (gaStatus !== 204) {
+          throw new Error(
+            `Worker reached its endpoint, but GA4 returned HTTP ${gaStatus}. Check the Measurement ID, API secret, and Worker logs.`,
+          );
+        }
+        return { gaStatus, result };
+      }
+      async function sendTestEvent(buttonNumber) {
+        const payload = buildPayload(buttonNumber);
+        log(`Button #${buttonNumber}: sending QA event via Cloudflare Worker…`);
+        try {
+          const response = await sendPayloadToWorker(payload);
+          confirmedCount += 1;
+          updateStats();
+          log(
+            `Button #${buttonNumber}: GA4 collection endpoint returned HTTP ${response.gaStatus}. QA profile ${payload.events[0].params.qa_profile_id}.`,
+          );
+          setStatus(
+            `GA4 collection endpoint returned HTTP 204 for ${confirmedCount} event(s). HTTP 204 is not a guarantee that every parameter appears in reports.`,
+            "",
+          );
+          return true;
+        } catch (error) {
+          failedCount += 1;
+          updateStats();
+          log(
+            `Button #${buttonNumber}: FAILED / NOT CONFIRMED — ${error.message}`,
+          );
+          setStatus(
+            `Button #${buttonNumber} failed or was not confirmed: ${error.message}`,
+            "error",
+          );
+          return false;
+        }
+      }
       function createButtons() {
         if (running) {
           setStatus(
-            "Stop the current auto-run before rebuilding the buttons.",
+            "Stop the current auto-run before rebuilding buttons.",
             "warn",
           );
           return;
         }
-        const parsedCount = Number.parseInt($("buttonCount").value, 10);
-        if (
-          !Number.isInteger(parsedCount) ||
-          parsedCount < 50 ||
-          parsedCount > 200
-        ) {
+        const count = Number.parseInt($("buttonCount").value, 10);
+        if (!Number.isInteger(count) || count < 50 || count > 200) {
           setStatus(
             "Button count must be a whole number from 50 to 200.",
             "error",
@@ -571,10 +621,13 @@ Page ready. Events are labelled qa_test_mode=true.
         }
         const container = $("buttons");
         container.replaceChildren();
-        eventsQueued = 0;
+        confirmedCount = 0;
+        failedCount = 0;
         runId = "";
-        $("lastProfile").textContent = "No event yet.";
-        for (let number = 1; number <= parsedCount; number += 1) {
+        clientId = "";
+        sessionId = 0;
+        $("lastPayload").textContent = "No event yet.";
+        for (let number = 1; number <= count; number += 1) {
           const button = document.createElement("button");
           button.type = "button";
           button.textContent = String(number);
@@ -583,97 +636,115 @@ Page ready. Events are labelled qa_test_mode=true.
             `Send QA event for button ${number}`,
           );
           button.addEventListener("click", () => {
-            // Ignore extra manual clicks during an automated run so each scheduled
-            // button contributes at most one event to that run.
             if (running && !autoClickDispatch) {
               log(
                 `Manual click on button #${number} ignored while auto-run is active.`,
               );
               return;
             }
-
-            // Save the promise so the auto-run loop can wait for this button's
-            // event to be queued before it advances or reports completion.
-            button.__qaEventPromise = sendTestEvent(number)
-              .then(() => true)
-              .catch((error) => {
-                log(
-                  `Button #${number} failed before queueing: ${error.message}`,
-                );
-                setStatus(
-                  `Button #${number} failed: ${error.message}`,
-                  "error",
-                );
-                return false;
-              });
+            button.__qaPromise = sendTestEvent(number).catch((error) => {
+              failedCount += 1;
+              updateStats();
+              log(`Button #${number} handler error: ${error.message}`);
+              return false;
+            });
           });
           container.appendChild(button);
         }
         updateStats();
         setStatus(
-          `${parsedCount} buttons created. Measurement ID G-W60ZSDKWTS is prefilled. Start when ready.`,
+          `${count} buttons created. Measurement ID ${MEASUREMENT_ID}. Test the Worker connection first.`,
           "warn",
         );
-        log(`Created ${parsedCount} buttons.`);
+        log(`Created ${count} buttons.`);
       }
-
       const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-
+      async function testWorker() {
+        try {
+          const url = workerUrl();
+          setStatus("Testing Worker health endpoint…", "warn");
+          const response = await fetch(url, {
+            method: "GET",
+            cache: "no-store",
+          });
+          const body = await response.text();
+          let parsed;
+          try {
+            parsed = body ? JSON.parse(body) : {};
+          } catch {
+            parsed = { raw_response: body };
+          }
+          $("workerResponse").textContent = JSON.stringify(
+            { worker_http_status: response.status, response: parsed },
+            null,
+            2,
+          );
+          if (!response.ok)
+            throw new Error(
+              `Worker health check returned HTTP ${response.status}.`,
+            );
+          setStatus(
+            `Worker health endpoint responded with HTTP ${response.status}. This confirms reachability only, not event delivery.`,
+            "",
+          );
+          log(`Worker health check returned HTTP ${response.status}.`);
+        } catch (error) {
+          setStatus(`Worker test failed: ${error.message}`, "error");
+          log(`WORKER TEST FAILED: ${error.message}`);
+        }
+      }
       async function startAutoRun() {
         if (running) return;
-        try {
-          await ensureGoogleTag();
-        } catch (error) {
-          setStatus(error.message, "error");
-          log("Auto-run not started: " + error.message);
-          return;
-        }
-
         const buttons = Array.from($("buttons").querySelectorAll("button"));
         if (buttons.length < 50 || buttons.length > 200) {
           setStatus("Create between 50 and 200 buttons first.", "error");
           return;
         }
+        try {
+          workerUrl();
+        } catch (error) {
+          setStatus(error.message, "error");
+          return;
+        }
 
         running = true;
         runId = makeId("qa_run_");
+        clientId = makeClientId();
+        sessionId = Math.floor(Date.now() / 1000);
         $("startAuto").disabled = true;
         $("stopAuto").disabled = false;
         $("createButtons").disabled = true;
         $("buttonCount").disabled = true;
         updateStats();
         setStatus(
-          `Auto-run active: one button every 1 second; ${buttons.length} total.`,
+          `Auto-run active: ${buttons.length} sequential test events, one request at a time.`,
           "",
         );
-        log(`Auto-run started. Run ID: ${runId}`);
+        log(
+          `Auto-run started. Run ID: ${runId}; synthetic client ID: ${clientId}; session ID: ${sessionId}.`,
+        );
 
-        let runQueued = 0;
-        let runFailures = 0;
-
+        let runConfirmed = 0;
+        let runFailed = 0;
+        let stoppedByUser = false;
         for (let index = 0; index < buttons.length && running; index += 1) {
+          const startedAt = Date.now();
           const button = buttons[index];
           autoClickDispatch = true;
           button.click();
           autoClickDispatch = false;
-
-          // A DOM .click() call does not wait for async listeners. Explicitly await
-          // the promise created by the click handler to eliminate the final-button race.
-          const queued = button.__qaEventPromise
-            ? await button.__qaEventPromise
+          const succeeded = button.__qaPromise
+            ? await button.__qaPromise
             : false;
-
-          if (queued) {
-            runQueued += 1;
-          } else {
-            runFailures += 1;
-          }
-
+          if (succeeded) runConfirmed += 1;
+          else runFailed += 1;
           $("progress").textContent = `${index + 1} / ${buttons.length}`;
-          if (index < buttons.length - 1 && running) await wait(1000);
+          if (index < buttons.length - 1 && running) {
+            const elapsed = Date.now() - startedAt;
+            await wait(Math.max(0, 1000 - elapsed));
+          }
         }
-
-        const stoppedByUser = !running;
+        stoppedByUser = !running;
         running = false;
         autoClickDispatch = false;
         $("startAuto").disabled = false;
@@ -681,46 +752,98 @@ Page ready. Events are labelled qa_test_mode=true.
         $("createButtons").disabled = false;
         $("buttonCount").disabled = false;
 
-        let completed;
-        let statusType = "";
-        if (stoppedByUser) {
-          completed = `Auto-run stopped by user. This run queued ${runQueued} event(s); ${runFailures} failed.`;
-          statusType = "warn";
-        } else if (runFailures > 0) {
-          completed = `Auto-run finished with errors. This run queued ${runQueued} event(s); ${runFailures} failed.`;
-          statusType = "error";
-        } else {
-          completed = `Auto-run completed. All ${runQueued} button event(s) were queued.`;
-        }
+        const summary = stoppedByUser
+          ? `Auto-run stopped. This run received ${runConfirmed} GA4 HTTP 204 response(s); ${runFailed} event(s) failed or were unconfirmed.`
+          : runFailed
+            ? `Auto-run finished with errors. ${runConfirmed} GA4 HTTP 204 response(s); ${runFailed} event(s) failed or were unconfirmed.`
+            : `Auto-run finished. All ${runConfirmed} event requests received GA4 HTTP 204 responses.`;
         setStatus(
-          completed + " Queued does not confirm that GA4 processed the events.",
-          statusType,
+          summary +
+            " Verify event receipt in GA4 DebugView; HTTP 204 alone does not validate event parameters.",
+          runFailed || stoppedByUser ? "warn" : "",
         );
-        log(
-          completed + " Queued does not confirm that GA4 processed the events.",
-        );
+        log(summary + " Check GA4 DebugView for synthetic_qa_button_click.");
       }
-
+      async function validateLastPayload() {
+        if (!lastPayloadObject) {
+          setStatus(
+            "Send at least one test event or click a button before validating a payload.",
+            "warn",
+          );
+          return;
+        }
+        try {
+          const endpoint = workerUrl() + "?action=validate";
+          setStatus(
+            "Submitting the last payload to the Worker validation endpoint…",
+            "warn",
+          );
+          const response = await fetch(endpoint, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(lastPayloadObject),
+            cache: "no-store",
+          });
+          const responseText = await response.text();
+          let result;
+          try {
+            result = responseText ? JSON.parse(responseText) : {};
+          } catch {
+            result = { raw_response: responseText };
+          }
+          $("workerResponse").textContent = JSON.stringify(
+            {
+              worker_http_status: response.status,
+              validation_response: result,
+            },
+            null,
+            2,
+          );
+          if (!response.ok)
+            throw new Error(
+              result.error ||
+                result.details ||
+                `Validation endpoint returned HTTP ${response.status}.`,
+            );
+          const messages = Array.isArray(result.validation_messages)
+            ? result.validation_messages
+            : [];
+          setStatus(
+            `Payload validation request completed. ${messages.length} validation message(s) returned. See the Worker response below.`,
+            messages.length ? "warn" : "",
+          );
+          log(
+            `Payload validation returned ${messages.length} validation message(s). This does not send the event to the live collection endpoint.`,
+          );
+        } catch (error) {
+          setStatus(`Payload validation failed: ${error.message}`, "error");
+          log(`VALIDATION FAILED: ${error.message}`);
+        }
+      }
       function stopAutoRun() {
         if (!running) return;
         running = false;
-        setStatus("Stopping after the current scheduled click…", "warn");
+        setStatus(
+          "Stop requested. The current request will finish before the runner stops.",
+          "warn",
+        );
         log("Stop requested.");
         $("stopAuto").disabled = true;
       }
 
       $("createButtons").addEventListener("click", createButtons);
+      $("testWorker").addEventListener("click", testWorker);
+      $("validatePayload").addEventListener("click", validateLastPayload);
       $("startAuto").addEventListener("click", startAutoRun);
       $("stopAuto").addEventListener("click", stopAutoRun);
       $("clearLog").addEventListener("click", () => {
         $("log").textContent = "Log cleared.\n";
       });
       $("buttonCount").addEventListener("change", () => {
-        const value = Number.parseInt($("buttonCount").value, 10);
-        if (Number.isInteger(value) && value >= 50 && value <= 200)
+        const count = Number.parseInt($("buttonCount").value, 10);
+        if (Number.isInteger(count) && count >= 50 && count <= 200)
           createButtons();
       });
-
       createButtons();
     </script>
   </body>
