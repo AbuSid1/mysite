@@ -1,850 +1,253 @@
-<!doctype html>
+
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>GA4 Synthetic QA Worker Sender</title>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Random Number Generator</title>
+
     <style>
-      :root {
-        color-scheme: dark;
-        --bg: #0b1220;
-        --panel: #172338;
-        --line: #3b4c66;
-        --text: #e5edf7;
-        --muted: #9bacbf;
-        --blue: #38bdf8;
-        --green: #4ade80;
-        --amber: #fbbf24;
-        --red: #f87171;
-      }
-      * {
-        box-sizing: border-box;
-      }
-      body {
-        margin: 0;
-        background: var(--bg);
-        color: var(--text);
-        font:
-          15px/1.5 Arial,
-          sans-serif;
-      }
-      .container {
-        width: min(1100px, 94%);
-        margin: 24px auto 50px;
-      }
-      .card {
-        background: var(--panel);
-        border: 1px solid var(--line);
-        border-radius: 16px;
-        padding: 20px;
-        margin: 0 0 16px;
-        box-shadow: 0 10px 28px #0003;
-      }
-      h1 {
-        margin: 0 0 8px;
-        color: var(--blue);
-        font-size: clamp(24px, 4vw, 34px);
-      }
-      h2 {
-        margin: 0 0 12px;
-        color: #bac8d9;
-        font-size: 14px;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-      }
-      p {
-        margin: 8px 0;
-      }
-      .muted {
-        color: var(--muted);
-        font-size: 13px;
-      }
-      .warning {
-        border-left: 4px solid var(--amber);
-        padding: 10px 12px;
-        background: #2b2110;
-        border-radius: 8px;
-      }
-      .grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-        gap: 14px;
-        align-items: end;
-      }
-      label {
-        display: block;
-        color: #cbd5e1;
-        font-size: 13px;
-        margin-bottom: 6px;
-      }
-      input {
-        width: 100%;
-        background: #0b1220;
-        border: 1px solid #52647d;
-        color: #fff;
-        padding: 11px 12px;
-        border-radius: 9px;
-        font-size: 15px;
-      }
-      input[readonly] {
-        opacity: 0.9;
-      }
-      button {
-        background: #1e293b;
-        color: #fff;
-        border: 1px solid #52647d;
-        border-radius: 9px;
-        padding: 10px 13px;
-        font-size: 14px;
-        cursor: pointer;
-      }
-      button:hover:not(:disabled) {
-        background: #334155;
-      }
-      button:disabled {
-        opacity: 0.45;
-        cursor: not-allowed;
-      }
-      .primary {
-        background: #0284c7;
-        border-color: #0284c7;
-      }
-      .primary:hover:not(:disabled) {
-        background: #0369a1;
-      }
-      .danger {
-        background: #7f1d1d;
-        border-color: #991b1b;
-      }
-      .controls {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-        margin: 12px 0;
-      }
-      .status {
-        background: #10251c;
-        color: var(--green);
-        padding: 12px;
-        border-radius: 9px;
-        margin: 10px 0;
-        overflow-wrap: anywhere;
-      }
-      .status.warn {
-        background: #2b2110;
-        color: var(--amber);
-      }
-      .status.error {
-        background: #301517;
-        color: var(--red);
-      }
-      .stats {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-        gap: 10px;
-      }
-      .stat {
-        background: #0b1220;
-        border: 1px solid #26364c;
-        padding: 12px;
-        border-radius: 10px;
-      }
-      .stat .label {
-        color: var(--muted);
-        font-size: 12px;
-      }
-      .stat .value {
-        color: var(--blue);
-        font-size: 21px;
-        font-weight: 700;
-        overflow-wrap: anywhere;
-      }
-      .buttons {
-        display: grid;
-        grid-template-columns: repeat(8, minmax(0, 1fr));
-        gap: 7px;
-      }
-      .buttons button {
-        padding: 9px 4px;
-        min-width: 0;
-      }
-      pre {
-        background: #0b1220;
-        border: 1px solid #26364c;
-        border-radius: 10px;
-        color: #cbd5e1;
-        padding: 12px;
-        white-space: pre-wrap;
-        overflow-wrap: anywhere;
-        max-height: 320px;
-        overflow: auto;
-        font-size: 12px;
-      }
-      code {
-        overflow-wrap: anywhere;
-      }
-      @media (max-width: 700px) {
-        .buttons {
-          grid-template-columns: repeat(5, minmax(0, 1fr));
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
-        .card {
-          padding: 15px;
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f2f2f2;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
         }
-      }
+
+        .container {
+            background: white;
+            padding: 30px 20px;
+            border-radius: 12px;
+            text-align: center;
+            width: 100%;
+            max-width: 350px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-bottom: 25px;
+        }
+
+        #number {
+            font-size: 50px;
+            font-weight: bold;
+            margin-bottom: 25px;
+            overflow-wrap: anywhere;
+        }
+
+        button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            background: #007bff;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #0056b3;
+        }
+
+        .results {
+            width: 100%;
+            max-width: 600px;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            overflow-wrap: anywhere;
+        }
+
+        .results h2 {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .results p {
+            margin-bottom: 20px;
+        }
+
+        .ad-container {
+            width: 100%;
+            max-width: 468px;
+            min-height: 60px;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+        }
+
+        .diagnostics {
+            width: 100%;
+            max-width: 600px;
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            font-size: 14px;
+            overflow-wrap: anywhere;
+        }
+
+        .diagnostics h2 {
+            font-size: 17px;
+            margin-bottom: 10px;
+        }
+
+        #ad-status {
+            white-space: pre-wrap;
+        }
     </style>
-  </head>
-  <body>
-    <main class="container">
-      <section class="card">
-        <h1>GA4 Synthetic QA Worker Sender</h1>
-        <p>
-          Sends explicitly labelled test events through your existing Cloudflare
-          Worker to GA4. Each button gets a fresh simulated QA profile.
-        </p>
-        <p class="warning">
-          <strong>Important:</strong> Measurement ID: <code>G-W60ZSDKWTS</code>.
-          The worker must be configured with this GA4 Measurement ID and a valid
-          Measurement Protocol API secret. These location/device fields are
-          custom QA event parameters only; this code does not spoof an IP
-          address or overwrite GA4's network-derived location. Do not run
-          synthetic events against a production property if you need clean
-          reporting.
-        </p>
-      </section>
+</head>
 
-      <section class="card">
-        <h2>Configuration</h2>
-        <div class="grid">
-          <div>
-            <label for="measurementId">GA4 Measurement ID</label
-            ><input id="measurementId" value="G-W60ZSDKWTS" readonly />
-          </div>
-          <div>
-            <label for="workerUrl">Cloudflare Worker URL</label
-            ><input
-              id="workerUrl"
-              value="https://mytestworker.test836mail-76c.workers.dev/"
-              spellcheck="false"
-            />
-          </div>
-          <div>
-            <label for="buttonCount">Number of buttons (50–200)</label
-            ><input
-              id="buttonCount"
-              type="number"
-              min="50"
-              max="200"
-              step="1"
-              value="50"
-            />
-          </div>
-          <div>
-            <button id="createButtons" class="primary">
-              Create / Reset Buttons
-            </button>
-          </div>
-        </div>
-        <div id="status" class="status warn" role="status">
-          Ready. Test the Worker connection before starting.
-        </div>
-        <div class="stats">
-          <div class="stat">
-            <div class="label">Buttons</div>
-            <div class="value" id="buttonTotal">50</div>
-          </div>
-          <div class="stat">
-            <div class="label">GA4 HTTP 204 responses</div>
-            <div class="value" id="eventTotal">0</div>
-          </div>
-          <div class="stat">
-            <div class="label">Failed / unconfirmed</div>
-            <div class="value" id="failedTotal">0</div>
-          </div>
-          <div class="stat">
-            <div class="label">Progress</div>
-            <div class="value" id="progress">0 / 50</div>
-          </div>
-          <div class="stat">
-            <div class="label">Run ID</div>
-            <div class="value" id="runId" style="font-size: 13px">
-              Not started
-            </div>
-          </div>
-        </div>
-        <div class="controls">
-          <button id="testWorker">Test Worker connection</button>
-          <button id="validatePayload">Validate Last Payload</button>
-          <button id="startAuto" class="primary">
-            Auto-click all buttons (1/sec)
-          </button>
-          <button id="stopAuto" class="danger" disabled>Stop</button>
-          <button id="clearLog">Clear Log</button>
-        </div>
-        <p class="muted">
-          The runner waits for the Worker response before moving on, then waits
-          one second before the next click. If a request takes longer, the
-          actual interval will be longer rather than sending overlapping
-          requests.
-        </p>
-      </section>
+<body>
 
-      <section class="card">
-        <h2>Button grid</h2>
-        <div
-          id="buttons"
-          class="buttons"
-          aria-label="Synthetic QA test buttons"
-        ></div>
-      </section>
-      <section class="card">
-        <h2>Last test event payload</h2>
-        <pre id="lastPayload">No event yet.</pre>
-      </section>
-      <section class="card">
-        <h2>Last Worker response</h2>
-        <pre id="workerResponse">No Worker request yet.</pre>
-      </section>
-      <section class="card">
-        <h2>Execution log</h2>
-        <pre id="log">
-Page ready. Events use qa_test_mode=true. No ad interactions are generated.</pre
-        >
-      </section>
-    </main>
+    <div class="container">
+        <h1>Random Number Generator</h1>
+
+        <div id="number">0</div>
+
+        <button id="generateButton" type="button">
+            Generate Number
+        </button>
+    </div>
+
+    <div class="results">
+        <h2>Real Result</h2>
+        <p>Direct display: <span id="direct">Not checked</span></p>
+
+        <h2>Spoofed Result</h2>
+        <p>Via fetch: <span id="spoofed">Not checked</span></p>
+    </div>
+
+    <!-- Ad display area -->
+    <div class="ad-container" id="ad-container">
+        <!-- The ad provider controls whether an ad is displayed. -->
+    </div>
+
+    <!-- Diagnostic information -->
+    <div class="diagnostics">
+        <h2>Ad Diagnostic Status</h2>
+        <p id="ad-status">Preparing ad request...</p>
+    </div>
+
+    <!--
+      The following IP-spoofing test code is intentionally disabled.
+      Changing browser-side API responses does not change the real
+      public IP address seen by a server.
+    -->
+
+    <!--
     <script>
-      "use strict";
+    (function () {
+        function randomPublicIPv4() {
+            while (true) {
+                const o = () => Math.floor(Math.random() * 256);
+                const [a, b, c, d] = [o(), o(), o(), o()];
 
-      const MEASUREMENT_ID = "G-W60ZSDKWTS";
+                if (a === 0 || a === 10 || a === 127 || a >= 224) continue;
+                if (a === 169 && b === 254) continue;
+                if (a === 172 && b >= 16 && b <= 31) continue;
+                if (a === 192 && b === 168) continue;
+                if (a === 100 && b >= 64 && b <= 127) continue;
 
-      // This list is QA sample data only; these values do not change real IP or GA4 geo attribution.
-      const TEST_LOCATIONS = [
-        {
-          city: "Mountain View",
-          region: "California",
-          country: "United States",
-          countryCode: "US",
-        },
-        {
-          city: "New York",
-          region: "New York",
-          country: "United States",
-          countryCode: "US",
-        },
-        { city: "Delhi", region: "Delhi", country: "India", countryCode: "IN" },
-        {
-          city: "Bengaluru",
-          region: "Karnataka",
-          country: "India",
-          countryCode: "IN",
-        },
-        {
-          city: "London",
-          region: "England",
-          country: "United Kingdom",
-          countryCode: "GB",
-        },
-        {
-          city: "Manchester",
-          region: "England",
-          country: "United Kingdom",
-          countryCode: "GB",
-        },
-        {
-          city: "Toronto",
-          region: "Ontario",
-          country: "Canada",
-          countryCode: "CA",
-        },
-        {
-          city: "Vancouver",
-          region: "British Columbia",
-          country: "Canada",
-          countryCode: "CA",
-        },
-        {
-          city: "Sydney",
-          region: "New South Wales",
-          country: "Australia",
-          countryCode: "AU",
-        },
-        {
-          city: "Melbourne",
-          region: "Victoria",
-          country: "Australia",
-          countryCode: "AU",
-        },
-        {
-          city: "Berlin",
-          region: "Berlin",
-          country: "Germany",
-          countryCode: "DE",
-        },
-        {
-          city: "Munich",
-          region: "Bavaria",
-          country: "Germany",
-          countryCode: "DE",
-        },
-        { city: "Tokyo", region: "Tokyo", country: "Japan", countryCode: "JP" },
-        { city: "Osaka", region: "Osaka", country: "Japan", countryCode: "JP" },
-        {
-          city: "Singapore",
-          region: "Singapore",
-          country: "Singapore",
-          countryCode: "SG",
-        },
-      ];
-      const TEST_DEVICES = [
-        { name: "QA Android Profile", os: "Android", browser: "Chrome" },
-        { name: "QA iOS Profile", os: "iOS", browser: "Safari" },
-        { name: "QA Windows Profile", os: "Windows", browser: "Chrome" },
-        { name: "QA macOS Profile", os: "macOS", browser: "Chrome" },
-        { name: "QA Linux Profile", os: "Linux", browser: "Firefox" },
-      ];
-
-      const $ = (id) => document.getElementById(id);
-      let running = false;
-      let autoClickDispatch = false;
-      let runId = "";
-      let clientId = "";
-      let sessionId = 0;
-      let confirmedCount = 0;
-      let failedCount = 0;
-      let lastPayloadObject = null;
-
-      function randomItem(array) {
-        return array[Math.floor(Math.random() * array.length)];
-      }
-      function makeId(prefix) {
-        const randomPart =
-          typeof crypto !== "undefined" && crypto.randomUUID
-            ? crypto.randomUUID().replaceAll("-", "").slice(0, 12)
-            : Math.random().toString(36).slice(2, 14);
-        return prefix + Date.now().toString(36) + "_" + randomPart;
-      }
-      function log(message) {
-        const line = `[${new Date().toLocaleTimeString()}] ${message}\n`;
-        $("log").textContent += line;
-        $("log").scrollTop = $("log").scrollHeight;
-      }
-      function setStatus(message, type = "") {
-        $("status").className = "status" + (type ? " " + type : "");
-        $("status").textContent = message;
-      }
-      function updateStats() {
-        $("eventTotal").textContent = String(confirmedCount);
-        $("failedTotal").textContent = String(failedCount);
-        $("buttonTotal").textContent = String($("buttons").children.length);
-        $("runId").textContent = runId || "Not started";
-      }
-      function workerUrl() {
-        const url = $("workerUrl").value.trim();
-        let parsed;
-        try {
-          parsed = new URL(url);
-        } catch {
-          throw new Error("Worker URL is not a valid URL.");
-        }
-        if (parsed.protocol !== "https:")
-          throw new Error("Worker URL must use HTTPS.");
-        return parsed.toString();
-      }
-      function makeClientId() {
-        // Separate synthetic QA identity for this run. It does not impersonate a browser user.
-        const seconds = Math.floor(Date.now() / 1000);
-        const randomDigits = String(Math.floor(Math.random() * 1e10)).padStart(
-          10,
-          "0",
-        );
-        return `${seconds}.${randomDigits}`;
-      }
-      function createSimulatedProfile(buttonNumber) {
-        const location = randomItem(TEST_LOCATIONS);
-        const device = randomItem(TEST_DEVICES);
-        return {
-          profile_id: makeId("qa_profile_"),
-          button_number: buttonNumber,
-          device_name: device.name,
-          simulated_os: device.os,
-          simulated_browser: device.browser,
-          simulated_city: location.city,
-          simulated_region: location.region,
-          simulated_country: location.country,
-          simulated_country_code: location.countryCode,
-        };
-      }
-      function buildPayload(buttonNumber) {
-        if (!runId) runId = makeId("qa_run_");
-        if (!clientId) clientId = makeClientId();
-        if (!sessionId) sessionId = Math.floor(Date.now() / 1000);
-        const profile = createSimulatedProfile(buttonNumber);
-        const eventId = makeId("qa_event_");
-        const payload = {
-          // The Worker must be configured server-side with Measurement ID G-W60ZSDKWTS
-          // and its Measurement Protocol API secret. Never put the API secret in this HTML.
-          client_id: clientId,
-          events: [
-            {
-              name: "synthetic_qa_button_click",
-              params: {
-                session_id: sessionId,
-                engagement_time_msec: 1000,
-                debug_mode: true,
-                qa_test_mode: "true",
-                qa_run_id: runId,
-                qa_event_id: eventId,
-                qa_button_number: buttonNumber,
-                qa_profile_id: profile.profile_id,
-                qa_device_name: profile.device_name,
-                qa_simulated_os: profile.simulated_os,
-                qa_simulated_browser: profile.simulated_browser,
-                qa_simulated_city: profile.simulated_city,
-                qa_simulated_region: profile.simulated_region,
-                qa_simulated_country: profile.simulated_country,
-                qa_simulated_country_code: profile.simulated_country_code,
-                page_location: window.location.href,
-                page_title: document.title,
-              },
-            },
-          ],
-        };
-        lastPayloadObject = payload;
-        $("lastPayload").textContent = JSON.stringify(
-          { ...payload, profile },
-          null,
-          2,
-        );
-        updateStats();
-        return payload;
-      }
-      async function sendPayloadToWorker(payload) {
-        const url = workerUrl();
-        const controller = new AbortController();
-        const timeout = setTimeout(() => controller.abort(), 15000);
-        let response;
-        let responseText = "";
-        let result = {};
-        try {
-          response = await fetch(url, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload),
-            cache: "no-store",
-            signal: controller.signal,
-          });
-          responseText = await response.text();
-        } catch (error) {
-          if (error.name === "AbortError") {
-            throw new Error(
-              "Worker request timed out after 15 seconds. Check Worker logs and CORS settings.",
-            );
-          }
-          throw new Error(
-            `Cannot reach Worker (${error.message}). Check that this page is hosted on an origin allowed by the Worker CORS rules.`,
-          );
-        } finally {
-          clearTimeout(timeout);
-        }
-        try {
-          result = responseText ? JSON.parse(responseText) : {};
-        } catch {
-          result = { raw_response: responseText };
-        }
-        $("workerResponse").textContent = JSON.stringify(
-          { worker_http_status: response.status, response: result },
-          null,
-          2,
-        );
-        if (!response.ok) {
-          throw new Error(
-            result.error ||
-              result.details ||
-              `Worker returned HTTP ${response.status}.`,
-          );
-        }
-        const gaStatus = Number(result.ga_status);
-        if (!Number.isFinite(gaStatus)) {
-          throw new Error(
-            `Worker HTTP ${response.status}, but the response has no numeric ga_status. The event is NOT confirmed as sent to GA4. Check the Worker response and code.`,
-          );
-        }
-        if (gaStatus !== 204) {
-          throw new Error(
-            `Worker reached its endpoint, but GA4 returned HTTP ${gaStatus}. Check the Measurement ID, API secret, and Worker logs.`,
-          );
-        }
-        return { gaStatus, result };
-      }
-      async function sendTestEvent(buttonNumber) {
-        const payload = buildPayload(buttonNumber);
-        log(`Button #${buttonNumber}: sending QA event via Cloudflare Worker…`);
-        try {
-          const response = await sendPayloadToWorker(payload);
-          confirmedCount += 1;
-          updateStats();
-          log(
-            `Button #${buttonNumber}: GA4 collection endpoint returned HTTP ${response.gaStatus}. QA profile ${payload.events[0].params.qa_profile_id}.`,
-          );
-          setStatus(
-            `GA4 collection endpoint returned HTTP 204 for ${confirmedCount} event(s). HTTP 204 is not a guarantee that every parameter appears in reports.`,
-            "",
-          );
-          return true;
-        } catch (error) {
-          failedCount += 1;
-          updateStats();
-          log(
-            `Button #${buttonNumber}: FAILED / NOT CONFIRMED — ${error.message}`,
-          );
-          setStatus(
-            `Button #${buttonNumber} failed or was not confirmed: ${error.message}`,
-            "error",
-          );
-          return false;
-        }
-      }
-      function createButtons() {
-        if (running) {
-          setStatus(
-            "Stop the current auto-run before rebuilding buttons.",
-            "warn",
-          );
-          return;
-        }
-        const count = Number.parseInt($("buttonCount").value, 10);
-        if (!Number.isInteger(count) || count < 50 || count > 200) {
-          setStatus(
-            "Button count must be a whole number from 50 to 200.",
-            "error",
-          );
-          return;
-        }
-        const container = $("buttons");
-        container.replaceChildren();
-        confirmedCount = 0;
-        failedCount = 0;
-        runId = "";
-        clientId = "";
-        sessionId = 0;
-        $("lastPayload").textContent = "No event yet.";
-        for (let number = 1; number <= count; number += 1) {
-          const button = document.createElement("button");
-          button.type = "button";
-          button.textContent = String(number);
-          button.setAttribute(
-            "aria-label",
-            `Send QA event for button ${number}`,
-          );
-          button.addEventListener("click", () => {
-            if (running && !autoClickDispatch) {
-              log(
-                `Manual click on button #${number} ignored while auto-run is active.`,
-              );
-              return;
+                return `${a}.${b}.${c}.${d}`;
             }
-            button.__qaPromise = sendTestEvent(number).catch((error) => {
-              failedCount += 1;
-              updateStats();
-              log(`Button #${number} handler error: ${error.message}`);
-              return false;
-            });
-          });
-          container.appendChild(button);
-        }
-        updateStats();
-        setStatus(
-          `${count} buttons created. Measurement ID ${MEASUREMENT_ID}. Test the Worker connection first.`,
-          "warn",
-        );
-        log(`Created ${count} buttons.`);
-      }
-      const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-      async function testWorker() {
-        try {
-          const url = workerUrl();
-          setStatus("Testing Worker health endpoint…", "warn");
-          const response = await fetch(url, {
-            method: "GET",
-            cache: "no-store",
-          });
-          const body = await response.text();
-          let parsed;
-          try {
-            parsed = body ? JSON.parse(body) : {};
-          } catch {
-            parsed = { raw_response: body };
-          }
-          $("workerResponse").textContent = JSON.stringify(
-            { worker_http_status: response.status, response: parsed },
-            null,
-            2,
-          );
-          if (!response.ok)
-            throw new Error(
-              `Worker health check returned HTTP ${response.status}.`,
-            );
-          setStatus(
-            `Worker health endpoint responded with HTTP ${response.status}. This confirms reachability only, not event delivery.`,
-            "",
-          );
-          log(`Worker health check returned HTTP ${response.status}.`);
-        } catch (error) {
-          setStatus(`Worker test failed: ${error.message}`, "error");
-          log(`WORKER TEST FAILED: ${error.message}`);
-        }
-      }
-      async function startAutoRun() {
-        if (running) return;
-        const buttons = Array.from($("buttons").querySelectorAll("button"));
-        if (buttons.length < 50 || buttons.length > 200) {
-          setStatus("Create between 50 and 200 buttons first.", "error");
-          return;
-        }
-        try {
-          workerUrl();
-        } catch (error) {
-          setStatus(error.message, "error");
-          return;
         }
 
-        running = true;
-        runId = makeId("qa_run_");
-        clientId = makeClientId();
-        sessionId = Math.floor(Date.now() / 1000);
-        $("startAuto").disabled = true;
-        $("stopAuto").disabled = false;
-        $("createButtons").disabled = true;
-        $("buttonCount").disabled = true;
-        updateStats();
-        setStatus(
-          `Auto-run active: ${buttons.length} sequential test events, one request at a time.`,
-          "",
-        );
-        log(
-          `Auto-run started. Run ID: ${runId}; synthetic client ID: ${clientId}; session ID: ${sessionId}.`,
-        );
-
-        let runConfirmed = 0;
-        let runFailed = 0;
-        let stoppedByUser = false;
-        for (let index = 0; index < buttons.length && running; index += 1) {
-          const startedAt = Date.now();
-          const button = buttons[index];
-          autoClickDispatch = true;
-          button.click();
-          autoClickDispatch = false;
-          const succeeded = button.__qaPromise
-            ? await button.__qaPromise
-            : false;
-          if (succeeded) runConfirmed += 1;
-          else runFailed += 1;
-          $("progress").textContent = `${index + 1} / ${buttons.length}`;
-          if (index < buttons.length - 1 && running) {
-            const elapsed = Date.now() - startedAt;
-            await wait(Math.max(0, 1000 - elapsed));
-          }
-        }
-        stoppedByUser = !running;
-        running = false;
-        autoClickDispatch = false;
-        $("startAuto").disabled = false;
-        $("stopAuto").disabled = true;
-        $("createButtons").disabled = false;
-        $("buttonCount").disabled = false;
-
-        const summary = stoppedByUser
-          ? `Auto-run stopped. This run received ${runConfirmed} GA4 HTTP 204 response(s); ${runFailed} event(s) failed or were unconfirmed.`
-          : runFailed
-            ? `Auto-run finished with errors. ${runConfirmed} GA4 HTTP 204 response(s); ${runFailed} event(s) failed or were unconfirmed.`
-            : `Auto-run finished. All ${runConfirmed} event requests received GA4 HTTP 204 responses.`;
-        setStatus(
-          summary +
-            " Verify event receipt in GA4 DebugView; HTTP 204 alone does not validate event parameters.",
-          runFailed || stoppedByUser ? "warn" : "",
-        );
-        log(summary + " Check GA4 DebugView for synthetic_qa_button_click.");
-      }
-      async function validateLastPayload() {
-        if (!lastPayloadObject) {
-          setStatus(
-            "Send at least one test event or click a button before validating a payload.",
-            "warn",
-          );
-          return;
-        }
-        try {
-          const endpoint = workerUrl() + "?action=validate";
-          setStatus(
-            "Submitting the last payload to the Worker validation endpoint…",
-            "warn",
-          );
-          const response = await fetch(endpoint, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(lastPayloadObject),
-            cache: "no-store",
-          });
-          const responseText = await response.text();
-          let result;
-          try {
-            result = responseText ? JSON.parse(responseText) : {};
-          } catch {
-            result = { raw_response: responseText };
-          }
-          $("workerResponse").textContent = JSON.stringify(
-            {
-              worker_http_status: response.status,
-              validation_response: result,
-            },
-            null,
-            2,
-          );
-          if (!response.ok)
-            throw new Error(
-              result.error ||
-                result.details ||
-                `Validation endpoint returned HTTP ${response.status}.`,
-            );
-          const messages = Array.isArray(result.validation_messages)
-            ? result.validation_messages
-            : [];
-          setStatus(
-            `Payload validation request completed. ${messages.length} validation message(s) returned. See the Worker response below.`,
-            messages.length ? "warn" : "",
-          );
-          log(
-            `Payload validation returned ${messages.length} validation message(s). This does not send the event to the live collection endpoint.`,
-          );
-        } catch (error) {
-          setStatus(`Payload validation failed: ${error.message}`, "error");
-          log(`VALIDATION FAILED: ${error.message}`);
-        }
-      }
-      function stopAutoRun() {
-        if (!running) return;
-        running = false;
-        setStatus(
-          "Stop requested. The current request will finish before the runner stops.",
-          "warn",
-        );
-        log("Stop requested.");
-        $("stopAuto").disabled = true;
-      }
-
-      $("createButtons").addEventListener("click", createButtons);
-      $("testWorker").addEventListener("click", testWorker);
-      $("validatePayload").addEventListener("click", validateLastPayload);
-      $("startAuto").addEventListener("click", startAutoRun);
-      $("stopAuto").addEventListener("click", stopAutoRun);
-      $("clearLog").addEventListener("click", () => {
-        $("log").textContent = "Log cleared.\n";
-      });
-      $("buttonCount").addEventListener("change", () => {
-        const count = Number.parseInt($("buttonCount").value, 10);
-        if (Number.isInteger(count) && count >= 50 && count <= 200)
-          createButtons();
-      });
-      createButtons();
+        const fakeIP = randomPublicIPv4();
+        console.log("Test IP:", fakeIP);
+        window.__spoofedIP = fakeIP;
+    })();
     </script>
-  </body>
+    -->
+
+    <!--
+    <script>
+        fetch("https://api.ipify.org?format=json")
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("spoofed").textContent = data.ip;
+            })
+            .catch(error => {
+                console.error("IP lookup failed:", error);
+            });
+    </script>
+    -->
+
+    <!-- Random number generator -->
+    <script>
+        const numberElement = document.getElementById("number");
+        const generateButton = document.getElementById("generateButton");
+
+        generateButton.addEventListener("click", function () {
+            const randomNumber = Math.floor(Math.random() * 1000000);
+            numberElement.textContent = randomNumber;
+        });
+    </script>
+
+    <!-- Ad configuration and diagnostics -->
+    <script>
+        window.atOptions = {
+            key: "da8d1724648cc463d239e0d75a24c4a0",
+            format: "iframe",
+            height: 60,
+            width: 468,
+            params: {}
+        };
+
+        const statusElement = document.getElementById("ad-status");
+
+        function updateStatus(message) {
+            statusElement.textContent += "\n" + message;
+            console.log("[Ad diagnostic]", message);
+        }
+
+        statusElement.textContent = "Page loaded. Starting ad request...";
+
+        window.addEventListener("error", function (event) {
+            updateStatus("Page error: " + (event.message || "Unknown error"));
+        });
+
+        window.addEventListener("unhandledrejection", function (event) {
+            updateStatus(
+                "Promise error: " +
+                String(event.reason || "Unknown error")
+            );
+        });
+    </script>
+
+    <!-- Original ad provider script-loading method -->
+    <script
+        src="https://bauval.org/22/da8d1724648cc463d239e0d75a24c4a0"
+        onload="document.getElementById('ad-status').textContent += '\nAd script loaded successfully.'; console.log('[Ad diagnostic] Script loaded');"
+        onerror="document.getElementById('ad-status').textContent += '\nAd script failed to load.'; console.error('[Ad diagnostic] Script failed to load');">
+    </script>
+
+    <!--
+      Second ad is intentionally disabled during testing.
+      Enable it only after testing the first ad independently.
+
+    <script>
+        window.atOptions = {
+            key: "1ae837e6306b6a44fd06d1836a37a9fd",
+            format: "iframe",
+            height: 300,
+            width: 160,
+            params: {}
+        };
+    </script>
+    <script src="https://bauval.org/22/1ae837e6306b6a44fd06d1836a37a9fd"></script>
+    -->
+
+</body>
 </html>
