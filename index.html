@@ -1,354 +1,727 @@
 <!doctype html>
 <html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>GA4 Synthetic QA Runner</title>
-  <style>
-    :root { color-scheme: dark; --bg:#0b1220; --panel:#172338; --line:#3b4c66; --text:#e5edf7; --muted:#9bacbf; --blue:#38bdf8; --green:#4ade80; --amber:#fbbf24; --red:#f87171; }
-    * { box-sizing:border-box; }
-    body { margin:0; background:var(--bg); color:var(--text); font:15px/1.5 Arial,sans-serif; }
-    .container { width:min(1100px,94%); margin:24px auto 50px; }
-    .card { background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:20px; margin:0 0 16px; box-shadow:0 10px 28px #0003; }
-    h1 { margin:0 0 8px; color:var(--blue); font-size:clamp(24px,4vw,34px); }
-    h2 { margin:0 0 12px; color:#bac8d9; font-size:14px; letter-spacing:.08em; text-transform:uppercase; }
-    p { margin:8px 0; }
-    .muted { color:var(--muted); font-size:13px; }
-    .warning { border-left:4px solid var(--amber); padding:10px 12px; background:#2b2110; border-radius:8px; }
-    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:14px; align-items:end; }
-    label { display:block; color:#cbd5e1; font-size:13px; margin-bottom:6px; }
-    input { width:100%; background:#0b1220; border:1px solid #52647d; color:#fff; padding:11px 12px; border-radius:9px; font-size:15px; }
-    button { background:#1e293b; color:#fff; border:1px solid #52647d; border-radius:9px; padding:10px 13px; font-size:14px; cursor:pointer; }
-    button:hover:not(:disabled) { background:#334155; }
-    button:disabled { opacity:.45; cursor:not-allowed; }
-    .primary { background:#0284c7; border-color:#0284c7; }
-    .primary:hover:not(:disabled) { background:#0369a1; }
-    .danger { background:#7f1d1d; border-color:#991b1b; }
-    .controls { display:flex; flex-wrap:wrap; gap:8px; margin:12px 0; }
-    .status { background:#10251c; color:var(--green); padding:12px; border-radius:9px; margin:10px 0; overflow-wrap:anywhere; }
-    .status.warn { background:#2b2110; color:var(--amber); }
-    .status.error { background:#301517; color:var(--red); }
-    .stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); gap:10px; }
-    .stat { background:#0b1220; border:1px solid #26364c; padding:12px; border-radius:10px; }
-    .stat .label { color:var(--muted); font-size:12px; }
-    .stat .value { color:var(--blue); font-size:23px; font-weight:700; }
-    .buttons { display:grid; grid-template-columns:repeat(8,minmax(0,1fr)); gap:7px; }
-    .buttons button { padding:9px 4px; min-width:0; }
-    pre { background:#0b1220; border:1px solid #26364c; border-radius:10px; color:#cbd5e1; padding:12px; white-space:pre-wrap; overflow-wrap:anywhere; max-height:320px; overflow:auto; font-size:12px; }
-    @media(max-width:700px) { .buttons { grid-template-columns:repeat(5,minmax(0,1fr)); } .card { padding:15px; } }
-  </style>
-</head>
-<body>
-  <main class="container">
-    <section class="card">
-      <h1>GA4 Synthetic QA Runner</h1>
-      <p>Creates 50–200 numbered test buttons. Each click creates a fresh, clearly labelled QA profile and queues a GA4 event.</p>
-      <p class="warning"><strong>Important:</strong> this page is preconfigured with your original Measurement ID <code>G-W60ZSDKWTS</code>. Test events will be sent to that same GA4 property and may affect its event counts and reports. Events are labelled <code>qa_test_mode=true</code>. This page does not spoof IP addresses, change GA4's network-derived geographic attribution, or click/track ad units. Location/device values are simulated QA metadata only.</p>
-    </section>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>GA4 Synthetic QA Runner</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #0b1220;
+        --panel: #172338;
+        --line: #3b4c66;
+        --text: #e5edf7;
+        --muted: #9bacbf;
+        --blue: #38bdf8;
+        --green: #4ade80;
+        --amber: #fbbf24;
+        --red: #f87171;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font:
+          15px/1.5 Arial,
+          sans-serif;
+      }
+      .container {
+        width: min(1100px, 94%);
+        margin: 24px auto 50px;
+      }
+      .card {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        padding: 20px;
+        margin: 0 0 16px;
+        box-shadow: 0 10px 28px #0003;
+      }
+      h1 {
+        margin: 0 0 8px;
+        color: var(--blue);
+        font-size: clamp(24px, 4vw, 34px);
+      }
+      h2 {
+        margin: 0 0 12px;
+        color: #bac8d9;
+        font-size: 14px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+      p {
+        margin: 8px 0;
+      }
+      .muted {
+        color: var(--muted);
+        font-size: 13px;
+      }
+      .warning {
+        border-left: 4px solid var(--amber);
+        padding: 10px 12px;
+        background: #2b2110;
+        border-radius: 8px;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 14px;
+        align-items: end;
+      }
+      label {
+        display: block;
+        color: #cbd5e1;
+        font-size: 13px;
+        margin-bottom: 6px;
+      }
+      input {
+        width: 100%;
+        background: #0b1220;
+        border: 1px solid #52647d;
+        color: #fff;
+        padding: 11px 12px;
+        border-radius: 9px;
+        font-size: 15px;
+      }
+      button {
+        background: #1e293b;
+        color: #fff;
+        border: 1px solid #52647d;
+        border-radius: 9px;
+        padding: 10px 13px;
+        font-size: 14px;
+        cursor: pointer;
+      }
+      button:hover:not(:disabled) {
+        background: #334155;
+      }
+      button:disabled {
+        opacity: 0.45;
+        cursor: not-allowed;
+      }
+      .primary {
+        background: #0284c7;
+        border-color: #0284c7;
+      }
+      .primary:hover:not(:disabled) {
+        background: #0369a1;
+      }
+      .danger {
+        background: #7f1d1d;
+        border-color: #991b1b;
+      }
+      .controls {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin: 12px 0;
+      }
+      .status {
+        background: #10251c;
+        color: var(--green);
+        padding: 12px;
+        border-radius: 9px;
+        margin: 10px 0;
+        overflow-wrap: anywhere;
+      }
+      .status.warn {
+        background: #2b2110;
+        color: var(--amber);
+      }
+      .status.error {
+        background: #301517;
+        color: var(--red);
+      }
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+        gap: 10px;
+      }
+      .stat {
+        background: #0b1220;
+        border: 1px solid #26364c;
+        padding: 12px;
+        border-radius: 10px;
+      }
+      .stat .label {
+        color: var(--muted);
+        font-size: 12px;
+      }
+      .stat .value {
+        color: var(--blue);
+        font-size: 23px;
+        font-weight: 700;
+      }
+      .buttons {
+        display: grid;
+        grid-template-columns: repeat(8, minmax(0, 1fr));
+        gap: 7px;
+      }
+      .buttons button {
+        padding: 9px 4px;
+        min-width: 0;
+      }
+      pre {
+        background: #0b1220;
+        border: 1px solid #26364c;
+        border-radius: 10px;
+        color: #cbd5e1;
+        padding: 12px;
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+        max-height: 320px;
+        overflow: auto;
+        font-size: 12px;
+      }
+      @media (max-width: 700px) {
+        .buttons {
+          grid-template-columns: repeat(5, minmax(0, 1fr));
+        }
+        .card {
+          padding: 15px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="container">
+      <section class="card">
+        <h1>GA4 Synthetic QA Runner</h1>
+        <p>
+          Creates 50–200 numbered test buttons. Each click creates a fresh,
+          clearly labelled QA profile and queues a GA4 event.
+        </p>
+        <p class="warning">
+          <strong>Important:</strong> this page is preconfigured with your
+          original Measurement ID <code>G-W60ZSDKWTS</code>. Test events will be
+          sent to that same GA4 property and may affect its event counts and
+          reports. Events are labelled <code>qa_test_mode=true</code>. This page
+          does not spoof IP addresses, change GA4's network-derived geographic
+          attribution, or click/track ad units. Location/device values are
+          simulated QA metadata only.
+        </p>
+      </section>
 
-    <section class="card">
-      <h2>Configuration</h2>
-      <div class="grid">
-        <div>
-          <label for="measurementId">GA4 Measurement ID</label>
-          <input id="measurementId" type="text" value="G-W60ZSDKWTS" placeholder="G-XXXXXXXXXX" autocomplete="off" spellcheck="false">
-          <p class="muted">Prefilled with the Measurement ID from your original HTML.</p>
+      <section class="card">
+        <h2>Configuration</h2>
+        <div class="grid">
+          <div>
+            <label for="measurementId">GA4 Measurement ID</label>
+            <input
+              id="measurementId"
+              type="text"
+              value="G-W60ZSDKWTS"
+              placeholder="G-XXXXXXXXXX"
+              autocomplete="off"
+              spellcheck="false"
+            />
+            <p class="muted">
+              Prefilled with the Measurement ID from your original HTML.
+            </p>
+          </div>
+          <div>
+            <label for="buttonCount">Number of buttons (50–200)</label>
+            <input
+              id="buttonCount"
+              type="number"
+              min="50"
+              max="200"
+              step="1"
+              value="50"
+            />
+          </div>
+          <div>
+            <button id="createButtons" class="primary">
+              Create / Reset Buttons
+            </button>
+          </div>
         </div>
-        <div>
-          <label for="buttonCount">Number of buttons (50–200)</label>
-          <input id="buttonCount" type="number" min="50" max="200" step="1" value="50">
+        <div id="status" class="status warn" role="status">
+          Ready. Add your GA4 test Measurement ID to begin.
         </div>
-        <div>
-          <button id="createButtons" class="primary">Create / Reset Buttons</button>
+        <div class="stats">
+          <div class="stat">
+            <div class="label">Buttons</div>
+            <div class="value" id="buttonTotal">50</div>
+          </div>
+          <div class="stat">
+            <div class="label">Events queued</div>
+            <div class="value" id="eventTotal">0</div>
+          </div>
+          <div class="stat">
+            <div class="label">Auto-run progress</div>
+            <div class="value" id="progress">0 / 50</div>
+          </div>
+          <div class="stat">
+            <div class="label">Run ID</div>
+            <div
+              class="value"
+              id="runId"
+              style="font-size: 13px; overflow-wrap: anywhere"
+            >
+              Not started
+            </div>
+          </div>
         </div>
-      </div>
-      <div id="status" class="status warn" role="status">Ready. Add your GA4 test Measurement ID to begin.</div>
-      <div class="stats">
-        <div class="stat"><div class="label">Buttons</div><div class="value" id="buttonTotal">50</div></div>
-        <div class="stat"><div class="label">Events queued</div><div class="value" id="eventTotal">0</div></div>
-        <div class="stat"><div class="label">Auto-run progress</div><div class="value" id="progress">0 / 50</div></div>
-        <div class="stat"><div class="label">Run ID</div><div class="value" id="runId" style="font-size:13px;overflow-wrap:anywhere">Not started</div></div>
-      </div>
-      <div class="controls">
-        <button id="startAuto" class="primary">Auto-click all buttons (1/sec)</button>
-        <button id="stopAuto" class="danger" disabled>Stop</button>
-        <button id="clearLog">Clear Log</button>
-      </div>
-      <p class="muted">Auto-run clicks each numbered button once, about one second apart. You can stop it at any time. Do not point this at a production property.</p>
-    </section>
+        <div class="controls">
+          <button id="startAuto" class="primary">
+            Auto-click all buttons (1/sec)
+          </button>
+          <button id="stopAuto" class="danger" disabled>Stop</button>
+          <button id="clearLog">Clear Log</button>
+        </div>
+        <p class="muted">
+          Auto-run clicks each numbered button once, about one second apart. You
+          can stop it at any time. Do not point this at a production property.
+        </p>
+      </section>
 
-    <section class="card">
-      <h2>Button grid</h2>
-      <div id="buttons" class="buttons" aria-label="Synthetic QA test buttons"></div>
-    </section>
+      <section class="card">
+        <h2>Button grid</h2>
+        <div
+          id="buttons"
+          class="buttons"
+          aria-label="Synthetic QA test buttons"
+        ></div>
+      </section>
 
-    <section class="card">
-      <h2>Last simulated QA profile</h2>
-      <pre id="lastProfile">No event yet.</pre>
-    </section>
+      <section class="card">
+        <h2>Last simulated QA profile</h2>
+        <pre id="lastProfile">No event yet.</pre>
+      </section>
 
-    <section class="card">
-      <h2>Execution log</h2>
-      <pre id="log">Page ready. Events are labelled qa_test_mode=true.
-</pre>
-    </section>
-  </main>
+      <section class="card">
+        <h2>Execution log</h2>
+        <pre id="log">
+Page ready. Events are labelled qa_test_mode=true.
+</pre
+        >
+      </section>
+    </main>
 
-  <script>
-    "use strict";
+    <script>
+      "use strict";
 
-    // These are simulated QA labels only. They do not alter the browser's IP
-    // address or GA4's network-derived geographic attribution. Country/service
-    // availability varies by Google product; this list is not a guarantee for every service.
-    const TEST_LOCATIONS = [
-      { city: "Mountain View", region: "California", country: "United States", countryCode: "US" },
-      { city: "New York", region: "New York", country: "United States", countryCode: "US" },
-      { city: "Delhi", region: "Delhi", country: "India", countryCode: "IN" },
-      { city: "Bengaluru", region: "Karnataka", country: "India", countryCode: "IN" },
-      { city: "London", region: "England", country: "United Kingdom", countryCode: "GB" },
-      { city: "Manchester", region: "England", country: "United Kingdom", countryCode: "GB" },
-      { city: "Toronto", region: "Ontario", country: "Canada", countryCode: "CA" },
-      { city: "Vancouver", region: "British Columbia", country: "Canada", countryCode: "CA" },
-      { city: "Sydney", region: "New South Wales", country: "Australia", countryCode: "AU" },
-      { city: "Melbourne", region: "Victoria", country: "Australia", countryCode: "AU" },
-      { city: "Berlin", region: "Berlin", country: "Germany", countryCode: "DE" },
-      { city: "Munich", region: "Bavaria", country: "Germany", countryCode: "DE" },
-      { city: "Tokyo", region: "Tokyo", country: "Japan", countryCode: "JP" },
-      { city: "Osaka", region: "Osaka", country: "Japan", countryCode: "JP" },
-      { city: "Singapore", region: "Singapore", country: "Singapore", countryCode: "SG" }
-    ];
+      // These are simulated QA labels only. They do not alter the browser's IP
+      // address or GA4's network-derived geographic attribution. Country/service
+      // availability varies by Google product; this list is not a guarantee for every service.
+      const TEST_LOCATIONS = [
+        {
+          city: "Mountain View",
+          region: "California",
+          country: "United States",
+          countryCode: "US",
+        },
+        {
+          city: "New York",
+          region: "New York",
+          country: "United States",
+          countryCode: "US",
+        },
+        { city: "Delhi", region: "Delhi", country: "India", countryCode: "IN" },
+        {
+          city: "Bengaluru",
+          region: "Karnataka",
+          country: "India",
+          countryCode: "IN",
+        },
+        {
+          city: "London",
+          region: "England",
+          country: "United Kingdom",
+          countryCode: "GB",
+        },
+        {
+          city: "Manchester",
+          region: "England",
+          country: "United Kingdom",
+          countryCode: "GB",
+        },
+        {
+          city: "Toronto",
+          region: "Ontario",
+          country: "Canada",
+          countryCode: "CA",
+        },
+        {
+          city: "Vancouver",
+          region: "British Columbia",
+          country: "Canada",
+          countryCode: "CA",
+        },
+        {
+          city: "Sydney",
+          region: "New South Wales",
+          country: "Australia",
+          countryCode: "AU",
+        },
+        {
+          city: "Melbourne",
+          region: "Victoria",
+          country: "Australia",
+          countryCode: "AU",
+        },
+        {
+          city: "Berlin",
+          region: "Berlin",
+          country: "Germany",
+          countryCode: "DE",
+        },
+        {
+          city: "Munich",
+          region: "Bavaria",
+          country: "Germany",
+          countryCode: "DE",
+        },
+        { city: "Tokyo", region: "Tokyo", country: "Japan", countryCode: "JP" },
+        { city: "Osaka", region: "Osaka", country: "Japan", countryCode: "JP" },
+        {
+          city: "Singapore",
+          region: "Singapore",
+          country: "Singapore",
+          countryCode: "SG",
+        },
+      ];
 
-    const TEST_DEVICES = [
-      { name: "QA Android Profile", os: "Android", browser: "Chrome" },
-      { name: "QA iOS Profile", os: "iOS", browser: "Safari" },
-      { name: "QA Windows Profile", os: "Windows", browser: "Chrome" },
-      { name: "QA macOS Profile", os: "macOS", browser: "Chrome" },
-      { name: "QA Linux Profile", os: "Linux", browser: "Firefox" }
-    ];
+      const TEST_DEVICES = [
+        { name: "QA Android Profile", os: "Android", browser: "Chrome" },
+        { name: "QA iOS Profile", os: "iOS", browser: "Safari" },
+        { name: "QA Windows Profile", os: "Windows", browser: "Chrome" },
+        { name: "QA macOS Profile", os: "macOS", browser: "Chrome" },
+        { name: "QA Linux Profile", os: "Linux", browser: "Firefox" },
+      ];
 
-    const $ = (id) => document.getElementById(id);
-    let activeMeasurementId = "";
-    let tagPromise = null;
-    let running = false;
-    let eventsQueued = 0;
-    let runId = "";
+      const $ = (id) => document.getElementById(id);
+      let activeMeasurementId = "";
+      let tagPromise = null;
+      let running = false;
+      let autoClickDispatch = false;
+      let eventsQueued = 0;
+      let runId = "";
 
-    function randomItem(list) {
-      return list[Math.floor(Math.random() * list.length)];
-    }
-
-    function makeId(prefix) {
-      const randomPart = (typeof crypto !== "undefined" && crypto.randomUUID)
-        ? crypto.randomUUID().replaceAll("-", "").slice(0, 12)
-        : Math.random().toString(36).slice(2, 14);
-      return prefix + Date.now().toString(36) + "_" + randomPart;
-    }
-
-    function log(message) {
-      const line = `[${new Date().toLocaleTimeString()}] ${message}\n`;
-      $("log").textContent += line;
-      $("log").scrollTop = $("log").scrollHeight;
-    }
-
-    function setStatus(message, type = "") {
-      $("status").className = "status" + (type ? " " + type : "");
-      $("status").textContent = message;
-    }
-
-    function updateStats() {
-      $("eventTotal").textContent = String(eventsQueued);
-      $("buttonTotal").textContent = String($("buttons").children.length);
-      $("progress").textContent = `${Math.min(eventsQueued, $("buttons").children.length)} / ${$("buttons").children.length}`;
-      $("runId").textContent = runId || "Not started";
-    }
-
-    function getMeasurementId() {
-      const value = $("measurementId").value.trim();
-      if (!/^G-[A-Z0-9]+$/i.test(value)) {
-        throw new Error("Enter a valid GA4 Measurement ID such as G-ABC1234567. Use a test property.");
+      function randomItem(list) {
+        return list[Math.floor(Math.random() * list.length)];
       }
-      if (activeMeasurementId && activeMeasurementId !== value) {
-        throw new Error("The Measurement ID is already loaded. Reload the page to switch test properties.");
+
+      function makeId(prefix) {
+        const randomPart =
+          typeof crypto !== "undefined" && crypto.randomUUID
+            ? crypto.randomUUID().replaceAll("-", "").slice(0, 12)
+            : Math.random().toString(36).slice(2, 14);
+        return prefix + Date.now().toString(36) + "_" + randomPart;
       }
-      return value;
-    }
 
-    function ensureGoogleTag() {
-      const measurementId = getMeasurementId();
-      if (tagPromise) return tagPromise;
-
-      activeMeasurementId = measurementId;
-      $("measurementId").disabled = true;
-      window.dataLayer = window.dataLayer || [];
-      window.gtag = window.gtag || function () { window.dataLayer.push(arguments); };
-
-      tagPromise = new Promise((resolve, reject) => {
-        const script = document.createElement("script");
-        script.async = true;
-        script.src = "https://www.googletagmanager.com/gtag/js?id=" + encodeURIComponent(measurementId);
-        script.onload = () => {
-          window.gtag("js", new Date());
-          window.gtag("config", measurementId, {
-            send_page_view: false,
-            debug_mode: true
-          });
-          setStatus("Google tag loaded for the configured test property.");
-          log("Google tag loaded; automatic page_view disabled.");
-          resolve();
-        };
-        script.onerror = () => {
-          tagPromise = null;
-          activeMeasurementId = "";
-          $("measurementId").disabled = false;
-          setStatus("Could not load gtag.js. Check the Measurement ID and network connection.", "error");
-          reject(new Error("Could not load gtag.js"));
-        };
-        document.head.appendChild(script);
-      });
-      return tagPromise;
-    }
-
-    function createSimulatedProfile(buttonNumber) {
-      const location = randomItem(TEST_LOCATIONS);
-      const device = randomItem(TEST_DEVICES);
-      return {
-        profile_id: makeId("qa_profile_"),
-        button_number: buttonNumber,
-        device_name: device.name,
-        simulated_os: device.os,
-        simulated_browser: device.browser,
-        simulated_city: location.city,
-        simulated_region: location.region,
-        simulated_country: location.country,
-        simulated_country_code: location.countryCode
-      };
-    }
-
-    async function sendTestEvent(buttonNumber) {
-      await ensureGoogleTag();
-      if (!runId) runId = makeId("qa_run_");
-      const profile = createSimulatedProfile(buttonNumber);
-      const eventId = makeId("qa_event_");
-      const params = {
-        qa_test_mode: "true",
-        qa_run_id: runId,
-        qa_event_id: eventId,
-        qa_button_number: buttonNumber,
-        qa_profile_id: profile.profile_id,
-        qa_device_name: profile.device_name,
-        qa_simulated_os: profile.simulated_os,
-        qa_simulated_browser: profile.simulated_browser,
-        qa_simulated_city: profile.simulated_city,
-        qa_simulated_region: profile.simulated_region,
-        qa_simulated_country: profile.simulated_country,
-        qa_simulated_country_code: profile.simulated_country_code,
-        debug_mode: true
-      };
-
-      // These are intentionally custom QA parameters only. No ip_override,
-      // user_location, fake client_id, UTM rewriting, or ad events are sent.
-      window.gtag("event", "synthetic_qa_button_click", params);
-      eventsQueued += 1;
-      $("lastProfile").textContent = JSON.stringify({ event_name: "synthetic_qa_button_click", event_id: eventId, run_id: runId, ...profile }, null, 2);
-      updateStats();
-      log(`Button #${buttonNumber}: queued labelled QA event (${profile.simulated_city}, ${profile.simulated_country}; ${profile.device_name}).`);
-    }
-
-    function createButtons() {
-      if (running) {
-        setStatus("Stop the current auto-run before rebuilding the buttons.", "warn");
-        return;
+      function log(message) {
+        const line = `[${new Date().toLocaleTimeString()}] ${message}\n`;
+        $("log").textContent += line;
+        $("log").scrollTop = $("log").scrollHeight;
       }
-      const parsedCount = Number.parseInt($("buttonCount").value, 10);
-      if (!Number.isInteger(parsedCount) || parsedCount < 50 || parsedCount > 200) {
-        setStatus("Button count must be a whole number from 50 to 200.", "error");
-        return;
+
+      function setStatus(message, type = "") {
+        $("status").className = "status" + (type ? " " + type : "");
+        $("status").textContent = message;
       }
-      const container = $("buttons");
-      container.replaceChildren();
-      eventsQueued = 0;
-      runId = "";
-      $("lastProfile").textContent = "No event yet.";
-      for (let number = 1; number <= parsedCount; number += 1) {
-        const button = document.createElement("button");
-        button.type = "button";
-        button.textContent = String(number);
-        button.setAttribute("aria-label", `Send QA event for button ${number}`);
-        button.addEventListener("click", () => {
-          sendTestEvent(number).catch(error => {
-            log(`Button #${number} failed: ${error.message}`);
-            setStatus(error.message, "error");
-          });
+
+      function updateStats() {
+        $("eventTotal").textContent = String(eventsQueued);
+        $("buttonTotal").textContent = String($("buttons").children.length);
+        $("progress").textContent =
+          `${Math.min(eventsQueued, $("buttons").children.length)} / ${$("buttons").children.length}`;
+        $("runId").textContent = runId || "Not started";
+      }
+
+      function getMeasurementId() {
+        const value = $("measurementId").value.trim();
+        if (!/^G-[A-Z0-9]+$/i.test(value)) {
+          throw new Error(
+            "Enter a valid GA4 Measurement ID such as G-ABC1234567. Use a test property.",
+          );
+        }
+        if (activeMeasurementId && activeMeasurementId !== value) {
+          throw new Error(
+            "The Measurement ID is already loaded. Reload the page to switch test properties.",
+          );
+        }
+        return value;
+      }
+
+      function ensureGoogleTag() {
+        const measurementId = getMeasurementId();
+        if (tagPromise) return tagPromise;
+
+        activeMeasurementId = measurementId;
+        $("measurementId").disabled = true;
+        window.dataLayer = window.dataLayer || [];
+        window.gtag =
+          window.gtag ||
+          function () {
+            window.dataLayer.push(arguments);
+          };
+
+        tagPromise = new Promise((resolve, reject) => {
+          const script = document.createElement("script");
+          script.async = true;
+          script.src =
+            "https://www.googletagmanager.com/gtag/js?id=" +
+            encodeURIComponent(measurementId);
+          script.onload = () => {
+            window.gtag("js", new Date());
+            window.gtag("config", measurementId, {
+              send_page_view: false,
+              debug_mode: true,
+            });
+            setStatus("Google tag loaded for the configured test property.");
+            log("Google tag loaded; automatic page_view disabled.");
+            resolve();
+          };
+          script.onerror = () => {
+            tagPromise = null;
+            activeMeasurementId = "";
+            $("measurementId").disabled = false;
+            setStatus(
+              "Could not load gtag.js. Check the Measurement ID and network connection.",
+              "error",
+            );
+            reject(new Error("Could not load gtag.js"));
+          };
+          document.head.appendChild(script);
         });
-        container.appendChild(button);
+        return tagPromise;
       }
-      updateStats();
-      setStatus(`${parsedCount} buttons created. Measurement ID G-W60ZSDKWTS is prefilled. Start when ready.`, "warn");
-      log(`Created ${parsedCount} buttons.`);
-    }
 
-    const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+      function createSimulatedProfile(buttonNumber) {
+        const location = randomItem(TEST_LOCATIONS);
+        const device = randomItem(TEST_DEVICES);
+        return {
+          profile_id: makeId("qa_profile_"),
+          button_number: buttonNumber,
+          device_name: device.name,
+          simulated_os: device.os,
+          simulated_browser: device.browser,
+          simulated_city: location.city,
+          simulated_region: location.region,
+          simulated_country: location.country,
+          simulated_country_code: location.countryCode,
+        };
+      }
 
-    async function startAutoRun() {
-      if (running) return;
-      try {
+      async function sendTestEvent(buttonNumber) {
         await ensureGoogleTag();
-      } catch (error) {
-        setStatus(error.message, "error");
-        log("Auto-run not started: " + error.message);
-        return;
+        if (!runId) runId = makeId("qa_run_");
+        const profile = createSimulatedProfile(buttonNumber);
+        const eventId = makeId("qa_event_");
+        const params = {
+          qa_test_mode: "true",
+          qa_run_id: runId,
+          qa_event_id: eventId,
+          qa_button_number: buttonNumber,
+          qa_profile_id: profile.profile_id,
+          qa_device_name: profile.device_name,
+          qa_simulated_os: profile.simulated_os,
+          qa_simulated_browser: profile.simulated_browser,
+          qa_simulated_city: profile.simulated_city,
+          qa_simulated_region: profile.simulated_region,
+          qa_simulated_country: profile.simulated_country,
+          qa_simulated_country_code: profile.simulated_country_code,
+          debug_mode: true,
+        };
+
+        // These are intentionally custom QA parameters only. No ip_override,
+        // user_location, fake client_id, UTM rewriting, or ad events are sent.
+        window.gtag("event", "synthetic_qa_button_click", params);
+        eventsQueued += 1;
+        $("lastProfile").textContent = JSON.stringify(
+          {
+            event_name: "synthetic_qa_button_click",
+            event_id: eventId,
+            run_id: runId,
+            ...profile,
+          },
+          null,
+          2,
+        );
+        updateStats();
+        log(
+          `Button #${buttonNumber}: queued labelled QA event (${profile.simulated_city}, ${profile.simulated_country}; ${profile.device_name}).`,
+        );
       }
 
-      const buttons = Array.from($("buttons").querySelectorAll("button"));
-      if (buttons.length < 50 || buttons.length > 200) {
-        setStatus("Create between 50 and 200 buttons first.", "error");
-        return;
+      function createButtons() {
+        if (running) {
+          setStatus(
+            "Stop the current auto-run before rebuilding the buttons.",
+            "warn",
+          );
+          return;
+        }
+        const parsedCount = Number.parseInt($("buttonCount").value, 10);
+        if (
+          !Number.isInteger(parsedCount) ||
+          parsedCount < 50 ||
+          parsedCount > 200
+        ) {
+          setStatus(
+            "Button count must be a whole number from 50 to 200.",
+            "error",
+          );
+          return;
+        }
+        const container = $("buttons");
+        container.replaceChildren();
+        eventsQueued = 0;
+        runId = "";
+        $("lastProfile").textContent = "No event yet.";
+        for (let number = 1; number <= parsedCount; number += 1) {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.textContent = String(number);
+          button.setAttribute(
+            "aria-label",
+            `Send QA event for button ${number}`,
+          );
+          button.addEventListener("click", () => {
+            // Ignore extra manual clicks during an automated run so each scheduled
+            // button contributes at most one event to that run.
+            if (running && !autoClickDispatch) {
+              log(
+                `Manual click on button #${number} ignored while auto-run is active.`,
+              );
+              return;
+            }
+
+            // Save the promise so the auto-run loop can wait for this button's
+            // event to be queued before it advances or reports completion.
+            button.__qaEventPromise = sendTestEvent(number)
+              .then(() => true)
+              .catch((error) => {
+                log(
+                  `Button #${number} failed before queueing: ${error.message}`,
+                );
+                setStatus(
+                  `Button #${number} failed: ${error.message}`,
+                  "error",
+                );
+                return false;
+              });
+          });
+          container.appendChild(button);
+        }
+        updateStats();
+        setStatus(
+          `${parsedCount} buttons created. Measurement ID G-W60ZSDKWTS is prefilled. Start when ready.`,
+          "warn",
+        );
+        log(`Created ${parsedCount} buttons.`);
       }
 
-      running = true;
-      runId = makeId("qa_run_");
-      $("startAuto").disabled = true;
-      $("stopAuto").disabled = false;
-      $("createButtons").disabled = true;
-      $("buttonCount").disabled = true;
-      updateStats();
-      setStatus(`Auto-run active: one button every 1 second; ${buttons.length} total.`, "");
-      log(`Auto-run started. Run ID: ${runId}`);
+      const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-      for (let index = 0; index < buttons.length && running; index += 1) {
-        buttons[index].click();
-        $("progress").textContent = `${index + 1} / ${buttons.length}`;
-        if (index < buttons.length - 1 && running) await wait(1000);
+      async function startAutoRun() {
+        if (running) return;
+        try {
+          await ensureGoogleTag();
+        } catch (error) {
+          setStatus(error.message, "error");
+          log("Auto-run not started: " + error.message);
+          return;
+        }
+
+        const buttons = Array.from($("buttons").querySelectorAll("button"));
+        if (buttons.length < 50 || buttons.length > 200) {
+          setStatus("Create between 50 and 200 buttons first.", "error");
+          return;
+        }
+
+        running = true;
+        runId = makeId("qa_run_");
+        $("startAuto").disabled = true;
+        $("stopAuto").disabled = false;
+        $("createButtons").disabled = true;
+        $("buttonCount").disabled = true;
+        updateStats();
+        setStatus(
+          `Auto-run active: one button every 1 second; ${buttons.length} total.`,
+          "",
+        );
+        log(`Auto-run started. Run ID: ${runId}`);
+
+        let runQueued = 0;
+        let runFailures = 0;
+
+        for (let index = 0; index < buttons.length && running; index += 1) {
+          const button = buttons[index];
+          autoClickDispatch = true;
+          button.click();
+          autoClickDispatch = false;
+
+          // A DOM .click() call does not wait for async listeners. Explicitly await
+          // the promise created by the click handler to eliminate the final-button race.
+          const queued = button.__qaEventPromise
+            ? await button.__qaEventPromise
+            : false;
+
+          if (queued) {
+            runQueued += 1;
+          } else {
+            runFailures += 1;
+          }
+
+          $("progress").textContent = `${index + 1} / ${buttons.length}`;
+          if (index < buttons.length - 1 && running) await wait(1000);
+        }
+
+        const stoppedByUser = !running;
+        running = false;
+        autoClickDispatch = false;
+        $("startAuto").disabled = false;
+        $("stopAuto").disabled = true;
+        $("createButtons").disabled = false;
+        $("buttonCount").disabled = false;
+
+        let completed;
+        let statusType = "";
+        if (stoppedByUser) {
+          completed = `Auto-run stopped by user. This run queued ${runQueued} event(s); ${runFailures} failed.`;
+          statusType = "warn";
+        } else if (runFailures > 0) {
+          completed = `Auto-run finished with errors. This run queued ${runQueued} event(s); ${runFailures} failed.`;
+          statusType = "error";
+        } else {
+          completed = `Auto-run completed. All ${runQueued} button event(s) were queued.`;
+        }
+        setStatus(
+          completed + " Queued does not confirm that GA4 processed the events.",
+          statusType,
+        );
+        log(
+          completed + " Queued does not confirm that GA4 processed the events.",
+        );
       }
 
-      const completed = !running ? "Auto-run stopped by user." : "Auto-run completed.";
-      running = false;
-      $("startAuto").disabled = false;
-      $("stopAuto").disabled = true;
-      $("createButtons").disabled = false;
-      $("buttonCount").disabled = false;
-      setStatus(completed, "");
-      log(completed);
-    }
+      function stopAutoRun() {
+        if (!running) return;
+        running = false;
+        setStatus("Stopping after the current scheduled click…", "warn");
+        log("Stop requested.");
+        $("stopAuto").disabled = true;
+      }
 
-    function stopAutoRun() {
-      if (!running) return;
-      running = false;
-      setStatus("Stopping after the current scheduled click…", "warn");
-      log("Stop requested.");
-      $("stopAuto").disabled = true;
-    }
+      $("createButtons").addEventListener("click", createButtons);
+      $("startAuto").addEventListener("click", startAutoRun);
+      $("stopAuto").addEventListener("click", stopAutoRun);
+      $("clearLog").addEventListener("click", () => {
+        $("log").textContent = "Log cleared.\n";
+      });
+      $("buttonCount").addEventListener("change", () => {
+        const value = Number.parseInt($("buttonCount").value, 10);
+        if (Number.isInteger(value) && value >= 50 && value <= 200)
+          createButtons();
+      });
 
-    $("createButtons").addEventListener("click", createButtons);
-    $("startAuto").addEventListener("click", startAutoRun);
-    $("stopAuto").addEventListener("click", stopAutoRun);
-    $("clearLog").addEventListener("click", () => { $("log").textContent = "Log cleared.\n"; });
-    $("buttonCount").addEventListener("change", () => {
-      const value = Number.parseInt($("buttonCount").value, 10);
-      if (Number.isInteger(value) && value >= 50 && value <= 200) createButtons();
-    });
-
-    createButtons();
-  </script>
-</body>
+      createButtons();
+    </script>
+  </body>
 </html>
